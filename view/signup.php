@@ -1,6 +1,6 @@
 <?php
     include_once 'header.php';
-    include_once './helpers/session_helper.php';
+    include_once '../helpers/session_helper.php';
 ?>
             <h4>SIGN UP</h4>
             <?php flash('register')?>
