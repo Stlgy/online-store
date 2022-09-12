@@ -1,21 +1,25 @@
 <?php
-
-    include_once 'view/header.php';
+    include_once 'includes/start.php';
+    include_once '../helpers/session_helper.php';
 ?>
 
-    <h1 id= "index-text">Stigy's Online Shop <br> 
-        <?php if(isset($_SESSION['username'])){
-            echo ($_SESSION['username']);
-        }else{
-            echo 'Guest';
-        }
-        ?></h1>
 
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <?php include_once "includes/head.php";?>
+    </head>
+    <body>
+            <?php include_once "includes/header.php";?>
 
-
-<?php
-    include_once 'view/footer.php';
-?> 
+             <h1 id= "index-text">Online Store <br> 
+                <?php if(isset($_SESSION['username'])){
+                    echo ($_SESSION['username']);
+                }else{
+                    echo '';}
+            ?></h1>
+    </body>
+</html>
 
 
 
