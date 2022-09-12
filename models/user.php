@@ -28,11 +28,11 @@
     //Register User
     public function register($data){//only 1 arg all data is stored in array
         $this->db->query('INSERT INTO users(firstname, lastname, username, email, pwd)
-        VALUES (:firstname, :lastname, :uid, :email, :password)');
+        VALUES (:firstname, :lastname, :username, :email, :password)');
         //Binding values
         $this->db->bind(':firstname', $data['firstname']);
         $this->db->bind(':lastname', $data['firstname']);
-        $this->db->bind(':uid', $data['username']);
+        $this->db->bind(':username', $data['username']);
         $this->db->bind(':email', $data['email']);
         $this->db->bind(':password', $data['pwd']);
 
