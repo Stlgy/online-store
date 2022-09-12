@@ -13,7 +13,7 @@
     public function findUserEmailUsername($email, $username){
         $this->db->query('SELECT *FROM users WHERE username = :username OR email = :email');
         $this->db->bind(':username', $username);
-        $this->db->bind(':email', $username);
+        $this->db->bind(':email', $email);
         
 
         $row = $this->db->single();//only 1 user match
