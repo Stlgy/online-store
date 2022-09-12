@@ -1,7 +1,5 @@
 <?php
 
-<?php
-
 require_once '../models/user.php';
 require_once '../helpers/session_helper.php';
 
