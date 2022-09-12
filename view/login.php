@@ -15,7 +15,7 @@
 
             <?php flash('login');?>
 
-            <form action="../controllers/users.php" method="post">
+            <form class="formlogin" action="../controllers/users.php" method="post">
                 <input type="hidden" name="type" value="login">
                 <input type="text" name="name/email" placeholder="Username/Email">
                 <input type="password" name="pwd" placeholder="Password">
