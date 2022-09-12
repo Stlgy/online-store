@@ -16,7 +16,7 @@
 
             <p class="psign">Don't have an account yet? <br>Sign up here</p>
 
-            <form action="../controllers/users.php" method="post">
+            <form class="formsign" action="../controllers/users.php" method="post">
                 <input type="hidden" name="type" value="register">
                 <input type="text" name="firstname" placeholder="First name">
                 <input type="text" name="lastname" placeholder="Last name">
