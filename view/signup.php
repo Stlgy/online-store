@@ -10,7 +10,7 @@
     <body>
         <?php include_once "includes/header.php";?>
 
-        <h1 class="header">Sign up</h1>
+        <h1 class="headerS">Sign up</h1>
 
             <?php flash('register')?>
 
