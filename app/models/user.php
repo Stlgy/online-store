@@ -6,14 +6,15 @@
     class User extends sys_utils{
 
         //Find user by existing email or username
-        public function findUsername($email, $username) :mixed
+        public function findUsername($email, $username)
         {
-            $res = SQL::getArray(SQL::run("SELECT * FROM " . BDPX . "_users WHERE username = ".$username." OR email = ".$email));
-            if(count($res) > 0){
+            $res = SQL::run("SELECT * FROM " . BDPX . "_users WHERE username = ".$username." OR email = ".$email);
+            var_dump($res);
+            if(is_array($res) && count($res) > 0){
                 return $res;
             }else{
                 return false;
-            }     
+            }
         }
          //Register User
         public function register($data) :bool

@@ -49,16 +49,6 @@
 			self::$insert_id = !empty(parent::getInstance()->getConnection()->insert_id) ? parent::getInstance()->getConnection()->insert_id : 0;
 			return $result;
 		}
-
-		public static function getArray($obj) {
-			$res = array();
-			if ($obj->num_rows > 0) {
-				while ($row = $obj->fetch_assoc()) {
-					$res[] = $row;
-				}
-			}
-			return $res;
-		}
 	}
 
 	class sys_utils {
