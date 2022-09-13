@@ -1,6 +1,6 @@
 <?php
 
-class Database {
+class Database2 {
     private $host = 'localhost';
     private $user = 'ifreshhost15_estagio';
     private $pass = 'agosto2022#';

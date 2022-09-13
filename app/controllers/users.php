@@ -3,8 +3,6 @@
 require_once '../models/user.php';
 require_once '../helpers/session_helper.php';
 
-include("../libraries/class_utils.php");
-
 //phpinfo();
 
 class Users extends sys_utils{
@@ -31,35 +29,35 @@ class Users extends sys_utils{
         if(empty($data['firstname']) || empty($data['lastname']) || empty($data['username']) ||
             empty($data['email']) || empty($data['pwd']) || empty($data['pwdrepeat'])){
             flash("register", "Please fill out all fields");//assign error
-            redirect("../view/account/signup.php");
+            redirect("signup.php");
         }
         if(!preg_match("/^[a-zA-Z0-9]*$/", $data['firstname'])){
             flash("register", "Invalid firstname");
-            redirect("../view/account/signup.php");s
+            redirect("signup.php");
         }
         if(!preg_match("/^[a-zA-Z0-9]*$/", $data['lastname'])){
             flash("register", "Invalid lastname");
-            redirect("../view/account/signup.php");
+            redirect("signup.php");
         }
         if(!preg_match("/^[a-zA-Z0-9]*$/", $data['username'])){
             flash("register", "Invalid username");
-            redirect("../view/account/signup.php");
+            redirect("signup.php");
         }
         if(!filter_var($data['email'], FILTER_VALIDATE_EMAIL)){
             flash("register", "Invalid email");
-            redirect("../view/account/signup.php");
+            redirect("signup.php");
         }
         if(strlen($data['pwd']) < 6){
             flash("register", "Invalid password");
-            redirect("../view/signup.php");
+            redirect("signup.php");
         }else if($data['pwd'] !== $data['pwdrepeat']){
             flash("register", "No matching passwords");
-            redirect("../view/account/signup.php");
+            redirect("signup.php");
         }
        //email or username already exists
        if($this->userModel->findUsername($data['email'], $data['username'])){
             flash("register", "Username or email already exist");
-            redirect("../view/account/signup.php");
+            redirect("signup.php");
        }
        //All validation checked
        //pwd hash 
@@ -67,41 +65,42 @@ class Users extends sys_utils{
 
        //Register user
        if($this->userModel->register($data)){
-        redirect("../view/account/signup.php");//sent to login pag
+        redirect("signup.php");//sent to login pag
        }else{//stop script
             die("Something went wrong");
        }
 
     }
     public function login(){
+        $user = new User();
         //sanatizing Post data
         $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
 
         //Init data
         $data=[
-            'username/email' => trim($_POST['username/email']),
-            'pwd'            => trim($_POST['pwd'])
+            'username' => trim($_POST['username']),
+            'pwd'      => trim($_POST['pwd'])
         ];
         if(empty($data['username']) || empty($data['pwd'])){
             flash("login", "Please fill out all fields");//assign error
-            redirect("../view/account/login.php");
+            redirect("login.php");
             exit();
         }
        
         //Check for user  or email
-        if($this->userModel->findUsername($data['username/email'], $data['username/email'])){
+        if($user->findUsername($data['username'], $data['username'])){
             //if found user
-            $loggedInUser = $this->userModel->login($data['username/email'], $data['pwd']);
+            $loggedInUser = $user->login($data['username'], $data['pwd']);
             if($loggedInUser){
                 //Create Session
                 $this->createSession($loggedInUser);
             }else{
                 flash("login", "Incorrect password");
-                redirect("../view/account/signup.php");
+                redirect("../../login.php");
             }
         }else{
             flash("login", "No user found ");
-            redirect("../view/account/signup.php");
+            redirect("../../signup.php");
         }
     }
     public function createSession($user){
@@ -109,7 +108,7 @@ class Users extends sys_utils{
         $_SESSION['firstname'] = $user->firstname;
         $_SESSION['lastname'] = $user->lastname;
         $_SESSION['email']  =$user->email;
-        redirect("../index.php");
+        redirect("index.php");
     }
     public function logout(){
         unset($_SESSION['id_u']);
@@ -117,7 +116,7 @@ class Users extends sys_utils{
         unset($_SESSION['lastname']);
         unset($_SESSION['email']);
         session_destroy();
-        redirect("../index.php");
+        redirect("index.php");
     }
 }
 
@@ -139,6 +138,6 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
             $init->logout();
             break;
         default:
-        redirect("../index.php");
+        redirect("index.php");
     }
 }

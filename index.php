@@ -1,16 +1,17 @@
 <?php
-    include_once 'includes/start.php';
-    include_once '../helpers/session_helper.php';
+//echo realpath('.');
+    include_once 'app/libraries/start.php';
+    include_once 'app/helpers/session_helper.php';
 ?>
 
 
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <?php include_once "includes/head.php";?>
+        <?php include_once "app/libraries/head.php";?>
     </head>
     <body>
-            <?php include_once "includes/header.php";?>
+            <?php include_once "app/libraries/header.php";?>
 
              <h1 id= "index-text">Online Store <br> 
                 <?php if(isset($_SESSION['username'])){
@@ -18,6 +19,8 @@
                 }else{
                     echo '';}
             ?></h1>
+            <?php include_once "app/libraries/footer.php";?>
+
     </body>
 </html>
 
