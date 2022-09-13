@@ -11,10 +11,7 @@ class Users extends sys_utils{
 
     private $userModel;
 
-    public function __construct()
-    {
-        $this->userModel = new User;
-    }
+   
     public function register(){
         //Process form
 
@@ -32,13 +29,13 @@ class Users extends sys_utils{
         ];
         //Validate inputs see if empty
         if(empty($data['firstname']) || empty($data['lastname']) || empty($data['username']) ||
-        empty($data['email']) || empty($data['pwd']) || empty($data['pwdrepeat'])){
+            empty($data['email']) || empty($data['pwd']) || empty($data['pwdrepeat'])){
             flash("register", "Please fill out all fields");//assign error
             redirect("../view/account/signup.php");
         }
         if(!preg_match("/^[a-zA-Z0-9]*$/", $data['firstname'])){
             flash("register", "Invalid firstname");
-            redirect("../view/account/signup.php");
+            redirect("../view/account/signup.php");s
         }
         if(!preg_match("/^[a-zA-Z0-9]*$/", $data['lastname'])){
             flash("register", "Invalid lastname");
@@ -82,19 +79,19 @@ class Users extends sys_utils{
 
         //Init data
         $data=[
-            'name/email'     => trim($_POST['name/email']),
+            'username/email' => trim($_POST['username/email']),
             'pwd'            => trim($_POST['pwd'])
         ];
-        if(empty($data['name']) || empty($data['pwd'])){
+        if(empty($data['username']) || empty($data['pwd'])){
             flash("login", "Please fill out all fields");//assign error
-            redirect("../view/account/signup.php");
+            redirect("../view/account/login.php");
             exit();
         }
        
         //Check for user  or email
-        if($this->userModel->findUsername($data['name/email'], $data['name/email'])){
+        if($this->userModel->findUsername($data['username/email'], $data['username/email'])){
             //if found user
-            $loggedInUser = $this->userModel->login($data['name/email'], $data['pwd']);
+            $loggedInUser = $this->userModel->login($data['username/email'], $data['pwd']);
             if($loggedInUser){
                 //Create Session
                 $this->createSession($loggedInUser);
