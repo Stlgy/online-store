@@ -1,8 +1,53 @@
 <?php
+    require_once '../view/includes/start.php';
     //require_once '../libraries/database.php';
-    require_once '../libraries/class_utils.php';
+    
+    include('../libraries/class_utils.php');
 
-    class User extends Database{
+    class User extends sys_utils{
+
+        //Find user by existing email or username
+        public function findUsername($email, $username){
+            $res = $this->SQL::run("SELECT * FROM ".BDPX."_users WHERE username = :username OR email = :email");
+                $this->res->bind(':username', $username);
+                $this->res->bind(':email', $email);
+                if($res && $res->num_rows > 0){
+                    $row = $this->res->single();
+                    return $row;
+                }else{
+                    return false;
+                }     
+    }
+         //Register User
+        public function register($data){//only 1 arg all data is stored in array
+            $res = $this->SQL::run("INSERT INTO ".BDPX."_users(firstname, lastname, username, email, pwd)
+            VALUES (:firstname, :lastname, :username, :email, :password)");
+            $this->res->bind(':firstname', $data['firstname']);
+            $this->res->bind(':lastname',  $data['lastname']);
+            $this->res->bind(':username', $data['username']);
+            $this->res->bind(':email', $data['email']);
+            $this->res->bind(':pwd', $data['pwd']);
+
+            
+
+        }
+        //Login User
+        public function login($nameEmail, $password){
+            $row = $this->findUsername($nameEmail, $nameEmail);
+            if($row == false) return false;// error 
+            //if found user
+            $hashedPassword = $row->password;
+            if(password_verify($password, $hashedPassword)){
+                return $row;
+            }else{
+                return false;
+            }
+        }
+
+    }
+?>
+
+    /*class User{
         private $db;
 
         public function __construct()
@@ -70,7 +115,7 @@
             return false;
         }
     }
-}
+}*/
 
     
 
