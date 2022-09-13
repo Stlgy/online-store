@@ -25,7 +25,7 @@ class Users extends sys_utils{
         $data = [
             'firstname' => trim($_POST['firstname']),
             'lastname'  => trim($_POST['lastname']),
-            'username'    => trim($_POST['username']),
+            'username'  => trim($_POST['username']),
             'email'     => trim($_POST['email']),
             'pwd'       => trim($_POST['pwd']),
             'pwdrepeat' => trim($_POST['pwdrepeat'])
@@ -34,35 +34,35 @@ class Users extends sys_utils{
         if(empty($data['firstname']) || empty($data['lastname']) || empty($data['username']) ||
         empty($data['email']) || empty($data['pwd']) || empty($data['pwdrepeat'])){
             flash("register", "Please fill out all fields");//assign error
-            redirect("../view/signup.php");
+            redirect("../view/account/signup.php");
         }
         if(!preg_match("/^[a-zA-Z0-9]*$/", $data['firstname'])){
             flash("register", "Invalid firstname");
-            redirect("../view/signup.php");
+            redirect("../view/account/signup.php");
         }
         if(!preg_match("/^[a-zA-Z0-9]*$/", $data['lastname'])){
             flash("register", "Invalid lastname");
-            redirect("../view/signup.php");
+            redirect("../view/account/signup.php");
         }
         if(!preg_match("/^[a-zA-Z0-9]*$/", $data['username'])){
             flash("register", "Invalid username");
-            redirect("../view/signup.php");
+            redirect("../view/account/signup.php");
         }
         if(!filter_var($data['email'], FILTER_VALIDATE_EMAIL)){
             flash("register", "Invalid email");
-            redirect("../view/signup.php");
+            redirect("../view/account/signup.php");
         }
         if(strlen($data['pwd']) < 6){
             flash("register", "Invalid password");
             redirect("../view/signup.php");
         }else if($data['pwd'] !== $data['pwdrepeat']){
             flash("register", "No matching passwords");
-            redirect("../view/signup.php");
+            redirect("../view/account/signup.php");
         }
        //email or username already exists
        if($this->userModel->findUsername($data['email'], $data['username'])){
             flash("register", "Username or email already exist");
-            redirect("../view/signup.php");
+            redirect("../view/account/signup.php");
        }
        //All validation checked
        //pwd hash 
@@ -70,7 +70,7 @@ class Users extends sys_utils{
 
        //Register user
        if($this->userModel->register($data)){
-        redirect("../view/login.php");//sent to login pag
+        redirect("../view/account/signup.php");//sent to login pag
        }else{//stop script
             die("Something went wrong");
        }
@@ -87,9 +87,10 @@ class Users extends sys_utils{
         ];
         if(empty($data['name']) || empty($data['pwd'])){
             flash("login", "Please fill out all fields");//assign error
-            redirect("../view/login.php");
+            redirect("../view/account/signup.php");
             exit();
         }
+       
         //Check for user  or email
         if($this->userModel->findUsername($data['name/email'], $data['name/email'])){
             //if found user
@@ -99,11 +100,11 @@ class Users extends sys_utils{
                 $this->createSession($loggedInUser);
             }else{
                 flash("login", "Incorrect password");
-                redirect("../view/login.php");
+                redirect("../view/account/signup.php");
             }
         }else{
             flash("login", "No user found ");
-            redirect("../view/login.php");
+            redirect("../view/account/signup.php");
         }
     }
     public function createSession($user){
