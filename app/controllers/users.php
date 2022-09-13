@@ -3,9 +3,11 @@
 require_once '../models/user.php';
 require_once '../helpers/session_helper.php';
 
+include("../libraries/class_utils.php");
+
 //phpinfo();
 
-class Users{
+class Users extends sys_utils{
 
     private $userModel;
 
@@ -58,7 +60,7 @@ class Users{
             redirect("../view/signup.php");
         }
        //email or username already exists
-       if($this->userModel->findUserEmailUsername($data['email'], $data['username'])){
+       if($this->userModel->findUsername($data['email'], $data['username'])){
             flash("register", "Username or email already exist");
             redirect("../view/signup.php");
        }
@@ -89,7 +91,7 @@ class Users{
             exit();
         }
         //Check for user  or email
-        if($this->userModel->findUserEmailUsername($data['name/email'], $data['name/email'])){
+        if($this->userModel->findUsername($data['name/email'], $data['name/email'])){
             //if found user
             $loggedInUser = $this->userModel->login($data['name/email'], $data['pwd']);
             if($loggedInUser){
