@@ -1,4 +1,5 @@
-<?php ?><header>
+<?php ?>
+<header>
     <nav>
         <div>
             <ul class="menu-main">
@@ -12,7 +13,7 @@
                             <li><a class="logs" href="signup.php">SIGN UP</a></li>
                             <li><a class="logs" href="login.php">LOGIN</a></li>';
                     }else 
-                        echo '<li><a href="app/controllers/users.php?q=logout">Logout</a></li>';
+                        echo '<li><a href="../controllers/users.php?q=logout">Logout</a></li>';
                 ?>
             </ul>
         </div>
