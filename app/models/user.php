@@ -1,4 +1,4 @@
-?php
+<?php
     require_once '../libraries/start.php';
     
     include('../libraries/class_utils.php');
