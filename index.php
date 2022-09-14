@@ -19,7 +19,7 @@
                 }else{
                     echo '';}
             ?></h1>
-            <?php include_once "app/libraries/footer.php";?>
+            <?php include_once "libraries/footer.php";?>
 
     </body>
 </html>
