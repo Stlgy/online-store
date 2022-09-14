@@ -1,14 +1,14 @@
 <?php
-    include_once 'app/libraries/start.php';
-    include_once 'app/helpers/session_helper.php';
+    include_once 'libraries/start.php';
+    include_once 'helpers/session_helper.php';
 ?>
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <?php include_once "app/libraries/head.php";?>
+        <?php include_once "libraries/head.php";?>
     </head>
     <body>
-        <?php include_once "app/libraries/header.php";?>
+        <?php include_once "libraries/header.php";?>
 
         <h1 class="headerS">Sign up</h1>
 
@@ -16,7 +16,7 @@
 
             <p class="psign">Don't have an account yet? <br>Sign up here</p>
 
-            <form class="formsign" action="app/controllers/users.php" method="post">
+            <form class="formsign" action="controllers/users.php" method="post">
                 <input type="hidden" name="type" value="register">
                 <input type="text" name="firstname" placeholder="First name">
                 <input type="text" name="lastname" placeholder="Last name">
@@ -27,6 +27,6 @@
                 <button type="submit" name="submit">SIGN UP</button>
                 <br></br>                 
             </form>
-        <?php include_once 'app/libraries/footer.php';?>
+        <?php include_once 'libraries/footer.php';?>
     </body>
 </html>
