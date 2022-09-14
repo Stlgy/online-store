@@ -1,17 +1,17 @@
 <?php
 //echo realpath('.');
-    include_once 'app/libraries/start.php';
-    include_once 'app/helpers/session_helper.php';
+    include_once 'libraries/start.php';
+    include_once '/helpers/session_helper.php';
 ?>
 
 
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <?php include_once "app/libraries/head.php";?>
+        <?php include_once "libraries/head.php";?>
     </head>
     <body>
-            <?php include_once "app/libraries/header.php";?>
+            <?php include_once "libraries/header.php";?>
 
              <h1 id= "index-text">Online Store <br> 
                 <?php if(isset($_SESSION['username'])){
@@ -35,7 +35,6 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
 <header>
     <nav>
         <div>
@@ -52,7 +51,6 @@
         </ul>
     </nav>
 </header>
-
 <section class="index-intro">
     <div class="index-intro-bg">
         <div class="wrapper">
@@ -61,7 +59,6 @@
         </div>
     </div>
 </section>
-
 <section class="index-login">
     <div class="wrapper">
         <div class="index-login-signup">
@@ -92,7 +89,5 @@
         </div>
     </div>
 </section>
-
 </body>
 </html>-->
-
