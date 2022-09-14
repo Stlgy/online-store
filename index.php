@@ -1,7 +1,7 @@
 <?php
 //echo realpath('.');
     include_once 'libraries/start.php';
-    include_once '/helpers/session_helper.php';
+    include_once 'helpers/session_helper.php';
 ?>
 
 
