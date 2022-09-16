@@ -23,7 +23,7 @@
                 $payload = $res->fetch_assoc(); //Associar os resultados MySQL a uma variavel php (array)
             }
             /*echo "<pre>";
-            print_r($payload); //ELIMINAR
+            print_r($payload); 
             echo "</pre>";*/
             return $payload;
         } 
