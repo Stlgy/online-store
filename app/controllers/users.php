@@ -17,12 +17,12 @@ class Users extends sys_utils
 
     public function register()
     {
-        //Process form
+        ####PROCESS FORM####
 
-        //Sanitize POST data
+        ### SANITIZE POST DATA
         $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
 
-        //Init data
+        ### INIT DATA
         $data = [
             'firstname' => trim($_POST['firstname']),
             'lastname'  => trim($_POST['lastname']),
@@ -32,48 +32,47 @@ class Users extends sys_utils
             'pwdrepeat' => trim($_POST['pwdrepeat'])
         ];
 
-        $caminho = '../login.php';
-        //Validate inputs see if empty
-        if (
-            empty($data['firstname']) || empty($data['lastname']) || empty($data['username']) ||
+        $road = '../login.php';
+        ### VALIDATE INPUTS
+        if (empty($data['firstname']) || empty($data['lastname']) || empty($data['username']) ||
             empty($data['email']) || empty($data['pwd']) || empty($data['pwdrepeat'])) {
             flash("register", "Please fill out all fields"); //assign error
-            redirect($caminho);
+            redirect ($road);
         }
         if (!preg_match("/^[a-zA-Z0-9]*$/", $data['firstname'])) {
             flash("register", "Invalid firstname");
-            redirect($caminho);
+            redirect ($road);
         }
         if (!preg_match("/^[a-zA-Z0-9]*$/", $data['lastname'])) {
             flash("register", "Invalid lastname");
-            redirect($caminho);
+            redirect ($road);
         }
         if (!preg_match("/^[a-zA-Z0-9]*$/", $data['username'])) {
             flash("register", "Invalid username");
-            redirect($caminho);
+            redirect ($road);
         }
         if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
             flash("register", "Invalid email");
-            redirect($caminho);
+            redirect ($road);
         }
         if (strlen($data['pwd']) < 6) {
             flash("register", "Invalid password");
-            redirect($caminho);
+            redirect ($road);
         } else if ($data['pwd'] !== $data['pwdrepeat']) {
             flash("register", "No matching passwords");
-            redirect($caminho);
+            redirect ($road);
         }
-        //email or username already exists
+        ### CHECK IF EMAIL || USERNAME ALREADY EXIST
         if ($this->userModel->findUsername([$data['email'], $data['username']], "signup")) {
             flash("register", "Username or email already exist");
             redirect('../signup.php');
         }else{
-            //All validation checked
-            //pwd hash 
+            ### ALL VALIDATIONS CHECKED
+            ### HASH PWD
             $data['pwd'] = password_hash($data['pwd'], PASSWORD_DEFAULT);   
-            //Register user
+            ### REGISTER
             if ($this->userModel->register($data)) {
-                redirect($caminho); //send to login pag
+                redirect ($road); //send to login pag
             } else { //stop script
                  die("Something went wrong");
             }
@@ -81,13 +80,12 @@ class Users extends sys_utils
     }
     public function login()
     {
+        $road = '../signup.php';
         
-        $caminho = '../signup.php';
-        
-        //sanatizing Post data
+        ### SANITIZE POST DATA
         $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
 
-        //Init data
+        ### INIT DATA
         $data = [
             'username' => trim($_POST['username']),
             'pwd'      => trim($_POST['pwd'])
@@ -99,25 +97,21 @@ class Users extends sys_utils
             exit();
         }
         
-        //Check for user  or email
+        ### CHECK FOR EMAIL || USERNAME
         if ($this->userModel->findUsername([$data['username']],"login")) 
         {
-            //if found user
+            ## IF FOUND USER
             $loggedInUser = $this->userModel->login($data['username'], $data['pwd']);
             
-            //var_dump($data['username'], $data['pwd']);
-            //echo '<br>';
-            //print_r($loggedInUser);
-            //die("morde a foca");
             if ($loggedInUser) {
-                //Create Session
+                ### CREAT SESSION
                 $this->createSession($loggedInUser);              
             } else {              
                 flash("login", "Incorrect password");
-                //redirect($caminho);
+                redirect ($road);
             }
         } else {
-            //redirect($caminho);
+            redirect ($road);
         }
     }
     public function resetPwd()
@@ -134,33 +128,34 @@ class Users extends sys_utils
             redirect('../login.php');
             exit();
         }
-        //check for user
+        ### CHECK FOR USER
          if ($user->findUsername([$data['username']], "login")) {
 
         }
-        /* */
+        
     }
     public function createSession($user)
     {
-        $caminho = '../index.php';
+        $road = '../index.php';
         $_SESSION['id_u']       = $user["id_u"];
         $_SESSION['username']   = $user["username"];
         $_SESSION['email']      = $user["email"];
-        redirect($caminho);
+        redirect ($road);
     }
     public function logout()
     {
+        $road = '../index.php';
         unset($_SESSION['id_u']);
         unset($_SESSION['username']);
         unset($_SESSION['email']);
         session_destroy();
-        redirect('../index.php');
+        redirect($road);
     }
 }
 
 $init = new Users;
 
-//Ensure that user is sending a POST request
+###ENSURING THE USER IS SENDING A POST REQUEST
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     switch ($_POST['type']) {
         case 'register':
@@ -176,6 +171,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $init->logout();
             break;
         default:
-            redirect("index.php");
+            redirect("../index.php");
     }
 }
