@@ -4,29 +4,40 @@
     include('../libraries/class_utils.php');
 
     class User extends sys_utils{
+ 
+        ###FIND USER BY EXIXTING  EMAIL || USERNAME
+        public function findUsername($array, $modo)
+        {
+            $payload = []; //Instanciar a variavel de resultado para não dar erros desnecessários.
 
-        //Find user by existing email or username
-        public function findUsername($array, $modo) {
-            $result=[];
-
-            if($modo=="signup"){
-                $res = SQL::run("SELECT * FROM " . BDPX . "_users WHERE email  = ".$array[0]." OR username = ".$array[1]);
-            }else{//modo signup
-                $res = SQL::run("SELECT * FROM " . BDPX . "_users WHERE email  = ".$array[0]." OR username = ".$array[0]);
+            if($modo=="signup")
+            {
+                $query = "SELECT * FROM " . BDPX . "_users WHERE email  = '".$array[0]."' OR username = '".$array[1]."'";
+            }else
+            {
+                $query = "SELECT * FROM " . BDPX . "_users WHERE email  = '".$array[0]."' OR username = '".$array[0]."'";
             }
             
-            //var_dump($res);
-            if(is_array($res) && count($res) > 0){
-                $result= $res;
+            $res = SQL::run($query);
+            if($res && $res->num_rows > 0){ //Também pode ser $res->num_rows == 1 dado que só queremos 1 row e os emails e usernames deverão ser UNIQUE na tabela.
+                $payload = $res->fetch_assoc(); //Associar os resultados MySQL a uma variavel php (array)
             }
-
-            return $result;
-        }
-         //Register User
+            /*echo "<pre>";
+            print_r($payload); //ELIMINAR
+            echo "</pre>";*/
+            return $payload;
+        } 
+        ### REGISTER USER
         public function register($data) :bool
-        {//only 1 arg all data is stored in array
+        {   //only 1 arg all data is stored in array
             $res = SQL::run("INSERT INTO " . BDPX . "_users(firstname, lastname, username, email, pwd)
-            VALUES (".$data['firstname'].", ".$data['lastname'].", ".$data['username'].", ".$data['email'].", ".$data['pwd'].")");
+            VALUES (
+                '". $data['firstname'] ."',
+                '". $data['lastname'] ."', 
+                '". $data['username'] ."', 
+                '". $data['email'] ."', 
+                '". $data['pwd'] ."')");
+            //echo SQL::$error;
             if ($res) {
                 return true;
             }
@@ -34,19 +45,20 @@
                 return false;
             }
         }
-        //Login User
+        ### LOGIN USER   
         public function login($name, $password)
         {
-            $row = $this->findUsername([$name], "login");
-            if(count($row)==0) return false;// error 
-            //if found user
-            $hashedPassword = $row['pwd']->pwd;
-            if(password_verify($password, $hashedPassword)){
-                return $row;
-            }else{
-                return false;
-            }
-        }
+            $resultado = false;
 
+            if(!empty($row = $this->findUsername([$name], "login"))){
+                $hashedPassword = $row['pwd'];
+                if(password_verify($password, $hashedPassword)) $resultado = $row;
+            }
+            return $resultado;
+        }
+        ### RESET PWD
+        public function resetPwd(){
+            
+        }
     }
 ?>
