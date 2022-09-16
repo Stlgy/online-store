@@ -33,34 +33,35 @@ class Users extends sys_utils
         ];
 
         $road = '../login.php';
+        $road2 = '../signup.php';
         ### VALIDATE INPUTS
         if (empty($data['firstname']) || empty($data['lastname']) || empty($data['username']) ||
             empty($data['email']) || empty($data['pwd']) || empty($data['pwdrepeat'])) {
             flash("register", "Please fill out all fields"); //assign error
-            redirect ($road);
+            redirect ($road2);
         }
         if (!preg_match("/^[a-zA-Z0-9]*$/", $data['firstname'])) {
             flash("register", "Invalid firstname");
-            redirect ($road);
+            redirect ($road2);
         }
         if (!preg_match("/^[a-zA-Z0-9]*$/", $data['lastname'])) {
             flash("register", "Invalid lastname");
-            redirect ($road);
+            redirect ($road2);
         }
         if (!preg_match("/^[a-zA-Z0-9]*$/", $data['username'])) {
             flash("register", "Invalid username");
-            redirect ($road);
+            redirect ($road2);
         }
         if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
             flash("register", "Invalid email");
-            redirect ($road);
+            redirect ($road2);
         }
         if (strlen($data['pwd']) < 6) {
             flash("register", "Invalid password");
-            redirect ($road);
+            redirect ($road2);
         } else if ($data['pwd'] !== $data['pwdrepeat']) {
             flash("register", "No matching passwords");
-            redirect ($road);
+            redirect ($road2);
         }
         ### CHECK IF EMAIL || USERNAME ALREADY EXIST
         if ($this->userModel->findUsername([$data['email'], $data['username']], "signup")) {
@@ -144,12 +145,14 @@ class Users extends sys_utils
     }
     public function logout()
     {
+        //echo "jimbo";
         $road = '../index.php';
         unset($_SESSION['id_u']);
         unset($_SESSION['username']);
         unset($_SESSION['email']);
         session_destroy();
-        redirect($road);
+        redirect($road); 
+       
     }
 }
 
