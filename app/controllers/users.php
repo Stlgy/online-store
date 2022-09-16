@@ -13,7 +13,7 @@ class Users extends sys_utils
     public function __construct()
     {
         $this->userModel = new User;
-    }
+    } 
 
     public function register()
     {
@@ -32,12 +32,11 @@ class Users extends sys_utils
             'pwdrepeat' => trim($_POST['pwdrepeat'])
         ];
 
-        $caminho = 'app/signup.php';
+        $caminho = '../login.php';
         //Validate inputs see if empty
         if (
             empty($data['firstname']) || empty($data['lastname']) || empty($data['username']) ||
-            empty($data['email']) || empty($data['pwd']) || empty($data['pwdrepeat'])
-        ) {
+            empty($data['email']) || empty($data['pwd']) || empty($data['pwdrepeat'])) {
             flash("register", "Please fill out all fields"); //assign error
             redirect($caminho);
         }
@@ -67,23 +66,24 @@ class Users extends sys_utils
         //email or username already exists
         if ($this->userModel->findUsername([$data['email'], $data['username']], "signup")) {
             flash("register", "Username or email already exist");
-            redirect($caminho);
-        }
-        //All validation checked
-        //pwd hash 
-        $data['pwd'] = password_hash($data['pwd'], PASSWORD_DEFAULT);
-
-        //Register user
-        if ($this->userModel->register($data)) {
-            redirect($caminho); //sent to login pag
-        } else { //stop script
-            die("Something went wrong");
+            redirect('../signup.php');
+        }else{
+            //All validation checked
+            //pwd hash 
+            $data['pwd'] = password_hash($data['pwd'], PASSWORD_DEFAULT);   
+            //Register user
+            if ($this->userModel->register($data)) {
+                redirect($caminho); //send to login pag
+            } else { //stop script
+                 die("Something went wrong");
+            }
         }
     }
     public function login()
     {
+        
         $caminho = '../signup.php';
-        $user = new User();
+        
         //sanatizing Post data
         $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
 
@@ -92,43 +92,69 @@ class Users extends sys_utils
             'username' => trim($_POST['username']),
             'pwd'      => trim($_POST['pwd'])
         ];
+
         if (empty($data['username']) || empty($data['pwd'])) {
             flash("login", "Please fill out all fields"); //assign error
-            redirect("login.php");
+            redirect("../login.php");
             exit();
         }
-
+        
         //Check for user  or email
-        if ($user->findUsername([$data['username']], "login")) {
+        if ($this->userModel->findUsername([$data['username']],"login")) 
+        {
             //if found user
-            $loggedInUser = $user->login($data['username'], $data['pwd']);
+            $loggedInUser = $this->userModel->login($data['username'], $data['pwd']);
+            
+            //var_dump($data['username'], $data['pwd']);
+            //echo '<br>';
+            //print_r($loggedInUser);
+            //die("morde a foca");
             if ($loggedInUser) {
                 //Create Session
-                $this->createSession($loggedInUser);
-            } else {
+                $this->createSession($loggedInUser);              
+            } else {              
                 flash("login", "Incorrect password");
-                redirect("../../login.php");
+                //redirect($caminho);
             }
         } else {
-            redirect($caminho);
+            //redirect($caminho);
         }
+    }
+    public function resetPwd()
+    {
+        $user = new User();
+        $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
+
+        $data = [
+            'user' =>trim($_POST['username'])
+        ];
+        //var_dump($data);
+        if(empty($data['user'])){
+            flash("reset", "Username or Email is required");
+            redirect('../login.php');
+            exit();
+        }
+        //check for user
+         if ($user->findUsername([$data['username']], "login")) {
+
+        }
+        /* */
     }
     public function createSession($user)
     {
-        $_SESSION['id_u'] = $user->id_u;
-        $_SESSION['firstname'] = $user->firstname;
-        $_SESSION['lastname'] = $user->lastname;
-        $_SESSION['email']  = $user->email;
-        redirect("index.php");
+        $caminho = '../index.php';
+        $_SESSION['id_u']       = $user["id_u"];
+        $_SESSION['username']   = $user["username"];
+        $_SESSION['email']      = $user["email"];
+        redirect($caminho);
     }
     public function logout()
     {
         unset($_SESSION['id_u']);
-        unset($_SESSION['firstname']);
-        unset($_SESSION['lastname']);
+        unset($_SESSION['username']);
         unset($_SESSION['email']);
         session_destroy();
-        redirect("index.php");
+        redirect('../index.php');
     }
 }
 
