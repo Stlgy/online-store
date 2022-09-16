@@ -2,6 +2,7 @@
 //echo realpath('.');
     include_once 'libraries/start.php';
     include_once 'helpers/session_helper.php';
+    
 ?>
 
 
@@ -13,14 +14,19 @@
     <body>
             <?php include_once "libraries/header.php";?>
 
-             <h1 id= "index-text">Online Store <br> 
-                <?php if(isset($_SESSION['username'])){
-                    echo ($_SESSION['username']);
+            <h1 id= "index-text">Welcome<br> 
+            <?php 
+                //phpinfo();
+                //var_export($_SESSION);
+                if(isset($_SESSION['id_u']) && !empty($_SESSION['id_u']))
+                {
+                    echo $_SESSION['username'];
                 }else{
-                    echo '';}
-            ?></h1>
+                    echo '<p cass="logged-status"> Guest</p>';     
+                }
+                ?>
+                </h1>
             <?php include_once "libraries/footer.php";?>
-
     </body>
 </html>
 
