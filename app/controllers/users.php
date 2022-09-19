@@ -81,6 +81,7 @@ class Users extends sys_utils
     }
     public function login()
     {
+        //echo 1;
         $road = '../signup.php';
         
         ### SANITIZE POST DATA
@@ -91,11 +92,12 @@ class Users extends sys_utils
             'username' => trim($_POST['username']),
             'pwd'      => trim($_POST['pwd'])
         ];
-
+       
+        //var_dump($data);
         if (empty($data['username']) || empty($data['pwd'])) {
             flash("login", "Please fill out all fields"); //assign error
             redirect("../login.php");
-            exit();
+            //exit();
         }
         
         ### CHECK FOR EMAIL || USERNAME
@@ -103,13 +105,13 @@ class Users extends sys_utils
         {
             ## IF FOUND USER
             $loggedInUser = $this->userModel->login($data['username'], $data['pwd']);
-            
+            var_dump($loggedInUser);
             if ($loggedInUser) {
                 ### CREAT SESSION
                 $this->createSession($loggedInUser);              
             } else {              
                 flash("login", "Incorrect password");
-                redirect ($road);
+                redirect ('../login.php');
             }
         } else {
             redirect ($road);
