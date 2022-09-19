@@ -29,11 +29,11 @@ include_once 'helpers/session_helper.php';
                         <?php flash('login'); ?>
                     </div>
                     <div class="row">
-                        <form control="" class="form__login" action="controllers/users.php" method="post">
+                        <form class="form__login" action="controllers/users.php" method="post">
                             <input type="hidden" name="type" value="login">
                             <div class="row">
                                 <input type="text" name="username" id="username" class="form__input" placeholder="Username/Email">
-                                <input type="password" name="password" id="password" class="form__input" placeholder="Password">
+                                <input type="password" name="pwd" id="password" class="form__input" placeholder="Password">
                             </div>
                     </div>
                     <div class="row">
@@ -49,7 +49,7 @@ include_once 'helpers/session_helper.php';
     </div>
     </div>
     <!-- Footer -->
-    <div class="container-fluid text-center footer">
+    <!-- <div class="container-fluid text-center footer"> -->
         <?php include_once "libraries/footer.php"; ?>
     </div>
 </body>
