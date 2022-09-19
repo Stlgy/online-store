@@ -30,14 +30,13 @@ include_once 'helpers/session_helper.php';
                     </div>
                     <div class="row">
                         <form control="" class="form__login" action="controllers/users.php" method="post">
+                            <input type="hidden" name="type" value="login">
                             <div class="row">
-                                <input type="hidden" name="type" value="login">
                                 <input type="text" name="username" id="username" class="form__input" placeholder="Username/Email">
+                                <input type="password" name="password" id="password" class="form__input" placeholder="Password">
                             </div>
-                            <input type="password" name="password" id="password" class="form__input" placeholder="Password">
                     </div>
                     <div class="row">
-
                         <input type="submit" value="Submit" class="btn">
                     </div>
                     </form>
