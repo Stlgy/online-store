@@ -129,17 +129,41 @@ class Users extends sys_utils
 
             $userEmail = $_POST["email"];
 
+            $res = SQL::run("INSERT INTO pwdReset(pwdResetEmail, pwdResetSelector, pwdResetToken, pwdResetExpires) 
+            VALUES(?, ?, ?, ?);");
+            $stmt = mysqli_stmt_init($this->_connection);
+            if(!mysqli_stmt_prepare($stmt, $res)){
+                echo "there was an error!!";
+                exit();
+            }else{
+                $expires = date("U") + 1800;//1 hour from now
+                $token = random_bytes(32);
+                $hashedToken = password_hash($token, PASSWORD_DEFAULT);
+                mysqli_stmt_bind_param($stmt, "ssss",$userEmail, $selector, $hashedToken, $expires);
+                mysqli_stmt_execute($stmt);
+            }
+            mysqli_stmt_close($stmt);
+            mysqli_close($this->_connection);
+
+            $url = "www.exportador.ifresh-host.eu/create-new-password.php?selector =" . $selector . "&validator=" . bin2hex($token);
+            $userEmail = $_POST["email"];
+            
+            $to = $userEmail;
+            $subject  = 'Reset your password for shop';
+            $message  = '<p>We received a password reset request. Here is the link to reset your password, if you did not made this request, igore this email</p>';
+            $message .= '<p>Password reset link:<br>';
+            $message .= '<a href="' . $url . '">' .$url .'</<></p>';
+
+            $headers  = "From: Shop <ines@ideiasfrescas.com>\r\n";
+            $headers .="Reply-to: ines@ideiasfrescas.com\r\n";
+            $headers .="Content-type: text/html\r\n";
+
+            mail($to, $subject, $message, $headers);
+            flash("reset", "Reset Successful");
+            redirect('../reset-password.php');
         }else{
             redirect('../index.php');
         }
-
-
-
-
-
-
-
-
     }
     public function createSession($user)
     {
