@@ -26,6 +26,20 @@
             print_r($payload); 
             echo "</pre>";*/
             return $payload;
+        }
+         public function findEmail($email)
+        {
+            $data = [];
+            $res = SQL::run("SELECT *FROM " . BDPX . "_users WHERE email=?");
+            $connection = $this->_connection;
+            $result = $connection->prepare($res);
+            $result->execute([$email]);
+            $data = $result->fetchALL();
+            if (!empty($data)) {
+                return FALSE;
+            } else {
+                return $data;
+            }
         } 
         ### REGISTER USER
         public function register($data) :bool
@@ -39,10 +53,10 @@
                 '". $data['pwd'] ."')");
             //echo SQL::$error;
             if ($res) {
-                return true;
+                return TRUE;
             }
             else {
-                return false;
+                return FALSE;
             }
         }
         ### LOGIN USER   
@@ -58,7 +72,8 @@
         }
         ### RESET PWD
         public function resetPwd(){
-            
+
+        
         }
     }
 ?>
