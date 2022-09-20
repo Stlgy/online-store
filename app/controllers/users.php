@@ -2,6 +2,7 @@
 
 require_once '../models/user.php';
 require_once '../helpers/session_helper.php';
+require '../libraries/start.php';
 
 //phpinfo();
 
@@ -93,7 +94,7 @@ class Users extends sys_utils
             'pwd'      => trim($_POST['pwd'])
         ];
        
-        //var_dump($data);
+        var_dump($data);
         if (empty($data['username']) || empty($data['pwd'])) {
             flash("login", "Please fill out all fields"); //assign error
             redirect("../login.php");
@@ -117,31 +118,28 @@ class Users extends sys_utils
             redirect ($road);
         }
     }
-    public function resetPwd()
-    {
-        //$user = new User();
-        $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
+    public function reset()
+    {   ##User clicked the rest button
+        if(isset($_POST['forgot-pwd'])){
+            $selector = bin2hex(random_bytes(8));
+            $token = random_bytes(32);
 
+            $url = "www.exportador.ifresh-host.eu/create-new-password.php?selector =" . $selector . "&validator=" . bin2hex($token);
+            $expires = date("U") + 1800;//1 hour from now
 
-         $data = trim($_POST['email']);
-        //var_dump($data);
-        if(empty($data['email'])){
-            flash("reset", "Email is required");
-            /* redirect('../reset-password.php'); */
-            //exit();
+            $userEmail = $_POST["email"];
+
+        }else{
+            redirect('../index.php');
         }
-         if(!filter_var($data['email'],FILTER_SANITIZE_EMAIL)){
-            flash("resetPwd", "Invalid email");
-        }
-        ### CHECK FOR EMAIL
-         if ($this->userModel->findEmail([$data['email']]))
-         {
-            ## IF FOUND EMAIL
-            $resetUPwd =$this->usermodel->
-         }
 
-        
-        
+
+
+
+
+
+
+
     }
     public function createSession($user)
     {
