@@ -105,7 +105,7 @@ class Users extends sys_utils
         {
             ## IF FOUND USER
             $loggedInUser = $this->userModel->login($data['username'], $data['pwd']);
-            var_dump($loggedInUser);
+            //var_dump($loggedInUser);
             if ($loggedInUser) {
                 ### CREAT SESSION
                 $this->createSession($loggedInUser);              
@@ -119,22 +119,28 @@ class Users extends sys_utils
     }
     public function resetPwd()
     {
-        $user = new User();
+        //$user = new User();
         $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
 
-        $data = [
-            'user' =>trim($_POST['username'])
-        ];
-        //var_dump($data);
-        if(empty($data['user'])){
-            flash("reset", "Username or Email is required");
-            redirect('../login.php');
-            exit();
-        }
-        ### CHECK FOR USER
-         if ($user->findUsername([$data['username']], "login")) {
 
+         $data = trim($_POST['email']);
+        //var_dump($data);
+        if(empty($data['email'])){
+            flash("reset", "Email is required");
+            /* redirect('../reset-password.php'); */
+            //exit();
         }
+         if(!filter_var($data['email'],FILTER_SANITIZE_EMAIL)){
+            flash("resetPwd", "Invalid email");
+        }
+        ### CHECK FOR EMAIL
+         if ($this->userModel->findEmail([$data['email']]))
+         {
+            ## IF FOUND EMAIL
+            $resetUPwd =$this->usermodel->
+         }
+
+        
         
     }
     public function createSession($user)
@@ -147,7 +153,7 @@ class Users extends sys_utils
     }
     public function logout()
     {
-        //echo "jimbo";
+        //echo "bananas";
         $road = '../index.php';
         unset($_SESSION['id_u']);
         unset($_SESSION['username']);
