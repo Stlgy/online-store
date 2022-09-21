@@ -94,7 +94,7 @@ class Users extends sys_utils
             'pwd'      => trim($_POST['pwd'])
         ];
        
-        var_dump($data);
+        //var_dump($data);
         if (empty($data['username']) || empty($data['pwd'])) {
             flash("login", "Please fill out all fields"); //assign error
             redirect("../login.php");
@@ -118,7 +118,70 @@ class Users extends sys_utils
             redirect ($road);
         }
     }
-   
+    public function reset()
+    {   ##User clicked the reset button
+        if (isset($_POST['forgot-pwd'])) {
+            //2 tokens to prevent timing attacks 
+            //token for check db to pinpoint the token needed to check the user with, when user get's back to website
+            $selector = bin2hex(random_bytes(8));
+            //token for authenticate that it's the correct user
+            $token = random_bytes(32); 
+
+            $url = "www.exportador.ifresh-host.eu/create-new-password.php?selector =" . $selector . "&validator=" . bin2hex($token);
+            $expires = date("U") + 1800; //1 hour from now
+
+            $userEmail = $_POST["email"];
+
+
+            ##Delete existing token from same user
+            $res = SQL::runprepareStmt("DELETE FROM " . BDPX . "_pwdReset WHERE pwdResetEmail='?' ","s",['userEmail']);
+           
+
+
+            $res = SQL::run("INSERT INTO pwdReset(pwdResetEmail, pwdResetSelector, pwdResetToken, pwdResetExpires) 
+            VALUES(?, ?, ?, ?);");
+            $stmt = mysqli_stmt_init($this->_connection);
+            if (!mysqli_stmt_prepare($stmt, $res)) {
+                echo "there was an error!!";
+                exit();
+            } else {
+                $expires = date("U") + 1800; //1 hour from now
+                $token = random_bytes(32);
+                $hashedToken = password_hash($token, PASSWORD_DEFAULT);
+                mysqli_stmt_bind_param($stmt, "ssss", $userEmail, $selector, $hashedToken, $expires);
+                mysqli_stmt_execute($stmt);
+            }
+            mysqli_stmt_close($stmt);
+            mysqli_close($this->_connection);
+
+            $url = "www.exportador.ifresh-host.eu/create-new-password.php?selector =" . $selector . "&validator=" . bin2hex($token);
+            $userEmail = $_POST["email"];
+
+            $to = $userEmail;
+            $subject  = 'Reset your password for shop';
+            $message  = '<p>We received a password reset request. Here is the link to reset your password, if you did not made this request, igore this email</p>';
+            $message .= '<p>Password reset link:<br>';
+            $message .= '<a href="' . $url . '">' . $url . '</<></p>';
+
+            $headers  = "From: Shop <ines@ideiasfrescas.com>\r\n";
+            $headers .= "Reply-to: ines@ideiasfrescas.com\r\n";
+            $headers .= "Content-type: text/html\r\n";
+
+            mail($to, $subject, $message, $headers);
+            flash("reset", "Reset successful");
+            redirect('../reset-password.php');
+        } else {//incorrect entrance
+            redirect('../index.php');
+        }
+
+
+
+
+
+
+
+
+    }
     public function createSession($user)
     {
         $road = '../index.php';
