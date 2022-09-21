@@ -38,7 +38,7 @@
 
 		public static function run($sql,$retorno = true) {
 			if ($retorno) {
-				$result = parent::getInstance()->getConnection()->query($sql);
+                $result = parent::getInstance()->getConnection()->query($sql);
 				if (!$result) {
 					self::$error = parent::getInstance()->getConnection()->error;
 				}
@@ -48,7 +48,29 @@
 			}
 			self::$insert_id = !empty(parent::getInstance()->getConnection()->insert_id) ? parent::getInstance()->getConnection()->insert_id : 0;
 			return $result;
-		}
+        }
+        public static function runprepareStmt(string $preparedStmt, string $types, array $parameters, $return=true)
+        {
+         /*
+        $types => Type of value:
+            i - integer
+            d - double
+            s - string
+            b - BLOB
+
+        $parameters Expects:
+        $parameters = ['valueA', 'valueB'];
+         */
+            $prepare = parent::getInstance()->getConnection()->prepare($preparedStmt);
+            $bind = $prepare->bind_param($types,...$parameters);
+
+            if($return){
+                $result = $prepare->execute();
+                if(!$result){
+                    ~self::$error = parent::getInstance()->getConnection()->error;
+                }
+            }
+        } 
 	}
 
 	class sys_utils {
@@ -656,3 +678,4 @@
 		}		
 	}	
 ?>
+
