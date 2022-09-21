@@ -49,13 +49,61 @@
         ### LOGIN USER   
         public function login($name, $password)
         {
-            $resultado = false;
+            $result = false;
 
             if(!empty($row = $this->findUsername([$name], "login"))){
                 $hashedPassword = $row['pwd'];
-                if(password_verify($password, $hashedPassword)) $resultado = $row;
+                if(password_verify($password, $hashedPassword)) $result = $row;
             }
-            return $resultado;
+            return $result;
+        }
+        ##Delete exixting TOKEN from user 
+        public function deleteToken(){
+            $userEmail = $_POST["email"];
+            $stmt = mysqli_stmt_init(SQL::getInstance()->getConnection());
+            if(!mysqli_stmt_prepare($stmt,"DELETE FROM " . BDPX . "_pwdReset WHERE pwdResetEmail=?")){
+               echo "there was an error!!";
+               exit();
+            }else{
+               mysqli_stmt_bind_param($stmt, "s", $userEmail);
+               mysqli_stmt_execute($stmt);
+            }
+        }
+        public function insertData(){
+            //$res = SQL::run("INSERT INTO pwdReset(pwdResetEmail, pwdResetSelector, pwdResetToken, pwdResetExpires) 
+            //VALUES(?, ?, ?, ?);");
+            
+            $stmt = mysqli_stmt_init(SQL::getInstance()->getConnection());
+            if(!mysqli_stmt_prepare($stmt, "INSERT INTO " . BDPX . "_pwdReset(pwdResetEmail, pwdResetSelector, pwdResetToken, pwdResetExpires) 
+            VALUES(?, ?, ?, ?);")){
+                echo "there was an error!!";
+                exit();
+            }else{
+                $expires = date("U") + 1800;//1 hour from now
+                $token = random_bytes(32);
+                $hashedToken = password_hash($token, PASSWORD_DEFAULT);
+                mysqli_stmt_bind_param($stmt, "ssss", $userEmail, $selector, $hashedToken, $expires);
+                mysqli_stmt_execute($stmt);
+            }
+            mysqli_stmt_close($stmt);
+            mysqli_close(SQL::getInstance()->getConnection());
+
+            $url = "www.exportador.ifresh-host.eu/create-new-password.php?selector =" . $selector . "&validator=" . bin2hex($token);
+            $userEmail = $_POST["email"];
+            
+            $to = $userEmail;
+            $subject  = 'Reset your password for shop';
+            $message  = '<p>We received a password reset request. Here is the link to reset your password, if you did not made this request, igore this email</p>';
+            $message .= '<p>Password reset link:<br>';
+            $message .= '<a href="' . $url . '">' .$url .'</<></p>';
+
+            $headers = "From: Shop <ines@ideiasfrescas.com>\r\n";
+            $headers .="Reply-to: ines@ideiasfrescas.com\r\n";
+            $headers .="Content-type: text/html\r\n";
+
+            mail($to, $subject, $message, $headers);
+            flash("reset","Reset successful");
+            redirect('../reset-password.php');
         }
         
     }
