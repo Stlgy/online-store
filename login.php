@@ -33,22 +33,30 @@ include_once 'helpers/session_helper.php';
                             <input type="hidden" name="type" value="login">
                             <div class="row">
                                 <input type="text" name="username" id="username" class="form__input" placeholder="Username/Email">
-                                <input type="password" name="pwd" id="password" class="form__input" placeholder="Password">
+                                <input type="password" name="pwd"  id="password" class="form__input" placeholder="Password">
                             </div>
                     </div>
                     <div class="row-submit">
+                    <?php
+                        /* if(isset($_GET["newpwd"])){
+                            if($_GET["newpwd"] === "passwordupdated"){
+                                flash("reset", "Password reseted");
+                            }
+                        } */
+                    ?>
                         <input type="submit" value="Login" class="btn btn-pequeno">
-                        <button type="button" class="btn"><a class="fixclr" href="reset-password.php">Reset Password</a><button>
+                    <div class="">
+                        <a href="reset-password.php" class="btn" role="button">Reset Password</a>
                     </div>
                     </form>
                 </div>
                 <div class="row-miss">
-                    <p>Don't have an account? <br><a class="fixclr" href="signup.php">Signup</a></p>
+                    <p>Don't have an account? <br><a href="./signup.php">Signup</a></p>
                 </div>
             </div>
         </div>
     </div>
-    </div>
+    <div>
     <!-- Footer -->
     <!-- <div class="container-fluid text-center footer"> -->
     <?php include_once "libraries/footer.php"; ?>
