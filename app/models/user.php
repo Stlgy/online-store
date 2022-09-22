@@ -69,33 +69,16 @@
 
            return $res;
         }
-
-        public function insertToken(){
-
-            $stmt = mysqli_stmt_init(SQL::getInstance()->getConnection());
-            if(!mysqli_stmt_prepare($stmt, "INSERT INTO " . BDPX . "_pwdReset(pwdResetEmail, pwdResetSelector, pwdResetToken, pwdResetExpires) 
-                VALUES(?, ?, ?, ?);"))
-            {
-                echo "There was an error!!";
-                exit();
-            }
-            else
-            {
-                mysqli_stmt_bind_param($stmt, "ssss", $userEmail, $selector, $hashedToken, $expires);
-                if(mysqli_stmt_execute($stmt))
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-            mysqli_stmt_close($stmt);
+        public function insertToken($userEmail, $selector, $hashedToken, $expires)
+       {
             
-
+            $res = SQL::runprepareStmt("INSERT INTO " . BDPX . "_pwdReset (pwdResetId,pwdResetEmail,pwdResetSelector,pwdResetToken,pwdResetExpires) VALUES 
+            (NULL,?,?,?,?)","ssss",[$userEmail, $selector, $hashedToken, $expires]);
+            
+             return $res;
             
         }
+       
         ## RESET PWD - GET TIME
         public function resetPassword($selector,$currentDate)
         {
