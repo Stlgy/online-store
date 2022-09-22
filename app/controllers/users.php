@@ -10,10 +10,12 @@ class Users extends sys_utils
 {
 
     private $userModel;
+    private $resetModel;
 
     public function __construct()
     {
         $this->userModel = new User;
+        $this->resetModel = new User;
     } 
 
     public function register()
@@ -60,7 +62,8 @@ class Users extends sys_utils
         if (strlen($data['pwd']) < 6) {
             flash("register", "Invalid password");
             redirect ($road2);
-        } else if ($data['pwd'] !== $data['pwdrepeat']) {
+        } 
+        else if ($data['pwd'] !== $data['pwdrepeat']) {
             flash("register", "No matching passwords");
             redirect ($road2);
         }
@@ -68,14 +71,16 @@ class Users extends sys_utils
         if ($this->userModel->findUsername([$data['email'], $data['username']], "signup")) {
             flash("register", "Username or email already exist");
             redirect('../signup.php');
-        }else{
+        }
+        else{
             ### ALL VALIDATIONS CHECKED
             ### HASH PWD
             $data['pwd'] = password_hash($data['pwd'], PASSWORD_DEFAULT);   
             ### REGISTER
             if ($this->userModel->register($data)) {
                 redirect ($road); //send to login pag
-            } else { //stop script
+            } 
+            else { //stop script
                  die("Something went wrong");
             }
         }
@@ -110,77 +115,15 @@ class Users extends sys_utils
             if ($loggedInUser) {
                 ### CREAT SESSION
                 $this->createSession($loggedInUser);              
-            } else {              
+            } 
+            else {              
                 flash("login", "Incorrect password");
                 redirect ('../login.php');
             }
-        } else {
+        } 
+        else {
             redirect ($road);
         }
-    }
-    public function reset()
-    {   ##User clicked the reset button
-        if (isset($_POST['forgot-pwd'])) {
-            //2 tokens to prevent timing attacks 
-            //token for check db to pinpoint the token needed to check the user with, when user get's back to website
-            $selector = bin2hex(random_bytes(8));
-            //token for authenticate that it's the correct user
-            $token = random_bytes(32); 
-
-            $url = "www.exportador.ifresh-host.eu/create-new-password.php?selector =" . $selector . "&validator=" . bin2hex($token);
-            $expires = date("U") + 1800; //1 hour from now
-
-            $userEmail = $_POST["email"];
-
-
-            ##Delete existing token from same user
-            $res = SQL::runprepareStmt("DELETE FROM " . BDPX . "_pwdReset WHERE pwdResetEmail='?' ","s",['userEmail']);
-           
-
-
-            $res = SQL::run("INSERT INTO pwdReset(pwdResetEmail, pwdResetSelector, pwdResetToken, pwdResetExpires) 
-            VALUES(?, ?, ?, ?);");
-            $stmt = mysqli_stmt_init($this->_connection);
-            if (!mysqli_stmt_prepare($stmt, $res)) {
-                echo "there was an error!!";
-                exit();
-            } else {
-                $expires = date("U") + 1800; //1 hour from now
-                $token = random_bytes(32);
-                $hashedToken = password_hash($token, PASSWORD_DEFAULT);
-                mysqli_stmt_bind_param($stmt, "ssss", $userEmail, $selector, $hashedToken, $expires);
-                mysqli_stmt_execute($stmt);
-            }
-            mysqli_stmt_close($stmt);
-            mysqli_close($this->_connection);
-
-            $url = "www.exportador.ifresh-host.eu/create-new-password.php?selector =" . $selector . "&validator=" . bin2hex($token);
-            $userEmail = $_POST["email"];
-
-            $to = $userEmail;
-            $subject  = 'Reset your password for shop';
-            $message  = '<p>We received a password reset request. Here is the link to reset your password, if you did not made this request, igore this email</p>';
-            $message .= '<p>Password reset link:<br>';
-            $message .= '<a href="' . $url . '">' . $url . '</<></p>';
-
-            $headers  = "From: Shop <ines@ideiasfrescas.com>\r\n";
-            $headers .= "Reply-to: ines@ideiasfrescas.com\r\n";
-            $headers .= "Content-type: text/html\r\n";
-
-            mail($to, $subject, $message, $headers);
-            flash("reset", "Reset successful");
-            redirect('../reset-password.php');
-        } else {//incorrect entrance
-            redirect('../index.php');
-        }
-
-
-
-
-
-
-
-
     }
     public function createSession($user)
     {
@@ -201,22 +144,161 @@ class Users extends sys_utils
         redirect($road); 
        
     }
+    public function sendEmail()
+    {  
+        ## User clicked the reset button
+        if (isset($_POST['reset-request-submit'])) {
+
+            $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
+            $userEmail = trim($_POST["email"]);
+
+            if(empty($userEmail))
+            {
+            flash("reset", "Please insert email");
+            redirect("../reset-password.php");
+            }
+
+            if(!filter_var($userEmail, FILTER_VALIDATE_EMAIL))
+            {
+            flash("reset", "Invalid email");
+            redirect("../reset-password.php");
+            }
+
+            ## CREATING 2 TOKENS TO PREVENT TIMING ATTACKS
+
+            //token for checking DB to pinpoint the token needed to check the user with, when user get's back to website
+            $selector = bin2hex(random_bytes(8));
+            //token for authenticate that it's the correct user
+            $token = random_bytes(32); 
+
+            $url = "www.exportador.ifresh-host.eu/create-new-password.php?selector =" . $selector . "&validator=" . bin2hex($token);
+            $expires = date("U") + 1800; //expiration half an hour?
+
+            if(!$this->resetModel->deleteToken($userEmail))
+            {
+                die("Error");
+            }
+            $hashedToken = password_hash($token, PASSWORD_DEFAULT);
+
+            if(!$this->resetModel->insertToken($userEmail, $selector, $hashedToken, $expires))
+            {
+                die("Error");
+            }
+            ## SENDING EMAIL
+
+            $to = $userEmail;
+            $subject  = 'Reset your  account password';
+            $message  = '<p>We received a password reset request. Here is the link to reset your password, if you did not made this request, ignore this email</p>';
+            $message .= '<p>Password reset link:<br>';
+            $message .= '<a href="' . $url . '">' . $url . '</<></p>';
+
+            $headers  = "From: Shop <ines@ideiasfrescas.com>\r\n";
+            $headers .= "Reply-to: ines@ideiasfrescas.com\r\n";
+            $headers .= "Content-type: text/html\r\n";
+
+            mail($to, $subject, $message, $headers);
+            flash("reset", "Check your mail, 'form-message-green");
+            redirect('../reset-password.php');
+        }
+    }
+    public function resetPassword()
+    {
+        ## SANITIZE DATA
+        $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
+
+        if(isset($_POST["reset-pwd-submit"]))
+        {
+            $data = [
+                'selector'          => trim($_POST['selector']),
+                'validator'         => trim($_POST['validator']),
+                'password'          => trim($_POST['pwd']),
+                'passwordRepeat'    => trim($_POST['pwdrepeat'])
+            ];
+            $url = '../create-new-password.php?selector='.$data['selector'].'&validator='.$data['validator'];
+
+            if(empty($_POST['pwd'] || $_POST['pwdrepeat']))
+            {
+            flash("newReset", "Please fill out all fields");
+            redirect($url);
+            }
+            else if($data['pwd'] != $data['pwdrepeat'])
+            {
+            flash("newReset", "Passwords do not match");
+            redirect($url);
+            }
+            else if((strlen($data['pwd']) < 6))
+            {
+                flash("newReset", "Invalid password");
+                redirect($url);
+            }
+            $currentDate =date("U");
+
+            if(!$row = $this->resetModel->resetPassword($data['selector'],$currentDate))
+            {
+                flash("newReset", "Sorry. The link is no longer valid");
+                redirect($url);
+            }
+            $tokenb     = hex2bin($data['validator']);
+            $tokencheck = password_verify($tokenb, $row["pwdResetToken"]);
+
+            if(!$tokencheck)
+            {
+                flash("newReset", "You need to re-Submit your reset request");
+                redirect($url);
+            }
+            $tokenEmail =$row->pwdResetEmail;
+
+            if(!$this->userModel->findUsername($tokenEmail, $tokenEmail))
+            {
+                flash("newReset", "There was an error");
+                redirect($url);
+            }
+            $newPwdhash = password_hash($data['pwd'], PASSWORD_DEFAULT);
+
+            if(!$this->userModel->updatePassword($newPwdhash, $tokenEmail))
+            {
+                flash("newReset", "There was an error");
+                redirect($url);
+            }
+            if(!$this->resetModel->deleteToken($tokenEmail))
+            {
+                flash("newReset", "There was an error");
+                redirect($url);
+            }
+            flash("newReset", "Password Updated", 'form-message form-message-green');
+            redirect($url);
+        }
+    }
 }
+
+
 
 $init = new Users;
 
-###ENSURING THE USER IS SENDING A POST REQUEST
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    switch ($_POST['type']) {
+### ENSURING THE USER IS SENDING A POST REQUEST
+if ($_SERVER['REQUEST_METHOD'] == 'POST') 
+{
+    switch ($_POST['type']) 
+    {
         case 'register':
             $init->register();
             break;
         case 'login':
             $init->login();
             break;
+        case 'send':
+            $init->sendEmail();
+            break;
+        case 'reset':
+            $init->resetPassword();
+            break;
+        default:
+            redirect("../index.php");
     }
-} else {
-    switch ($_GET['q']) {
+}
+else {
+    switch ($_GET['q']) 
+    {
         case 'logout':
             $init->logout();
             break;
