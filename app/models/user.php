@@ -61,24 +61,15 @@
             }
             return $result;
         }
-        ##Delete exixting TOKEN from user 
+         ##Delete exixting TOKEN from user 
         public function deleteToken(){
-            //var_dump("morde a foca4");
+        
             $userEmail = $_POST["email"];
-            $stmt = mysqli_stmt_init(SQL::getInstance()->getConnection());
-            if(!mysqli_stmt_prepare($stmt,"DELETE FROM " . BDPX . "_pwdReset WHERE pwdResetEmail=?"))
-            {
-               echo "There was an error!!";
-               exit();
-            }
-            else
-            {
-               mysqli_stmt_bind_param($stmt, "s", $userEmail);
-               mysqli_stmt_execute($stmt);
-            }
-             mysqli_stmt_close($stmt);
-            //mysqli_close(SQL::getInstance()->getConnection());
+            $res = SQL::runprepareStmt("DELETE FROM " . BDPX . "_pwdReset WHERE pwdResetEmail=?","s",[$userEmail]);
+
+           return $res;
         }
+
         public function insertToken(){
 
             $stmt = mysqli_stmt_init(SQL::getInstance()->getConnection());
