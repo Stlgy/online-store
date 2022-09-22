@@ -63,6 +63,7 @@
         }
         ##Delete exixting TOKEN from user 
         public function deleteToken(){
+            //var_dump("morde a foca4");
             $userEmail = $_POST["email"];
             $stmt = mysqli_stmt_init(SQL::getInstance()->getConnection());
             if(!mysqli_stmt_prepare($stmt,"DELETE FROM " . BDPX . "_pwdReset WHERE pwdResetEmail=?"))
@@ -75,6 +76,8 @@
                mysqli_stmt_bind_param($stmt, "s", $userEmail);
                mysqli_stmt_execute($stmt);
             }
+             mysqli_stmt_close($stmt);
+            //mysqli_close(SQL::getInstance()->getConnection());
         }
         public function insertToken(){
 
@@ -98,7 +101,7 @@
                 }
             }
             mysqli_stmt_close($stmt);
-            mysqli_close(SQL::getInstance()->getConnection());
+            
 
             
         }
@@ -124,7 +127,7 @@
                     return false;
                 }
                 mysqli_stmt_close($stmt);
-                mysqli_close(SQL::getInstance()->getConnection());
+                //mysqli_close(SQL::getInstance()->getConnection());
             }
         }
         public function updatePassword($newpwdhash, $tokenEmail)
@@ -147,7 +150,7 @@
                     return false;
                 }
                 mysqli_stmt_close($stmt);
-                mysqli_close(SQL::getInstance()->getConnection());
+                //mysqli_close(SQL::getInstance()->getConnection());
             }            
         }
         
