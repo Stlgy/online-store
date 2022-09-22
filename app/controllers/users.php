@@ -2,7 +2,7 @@
 
 require_once '../models/user.php';
 require_once '../helpers/session_helper.php';
-require '../libraries/start.php';
+require_once '../libraries/start.php';
 
 //phpinfo();
 
@@ -146,6 +146,7 @@ class Users extends sys_utils
     }
     public function sendEmail()
     {  
+        
         ## User clicked the reset button
         if (isset($_POST['reset-request-submit'])) {
 
@@ -176,12 +177,14 @@ class Users extends sys_utils
 
             if(!$this->resetModel->deleteToken($userEmail))
             {
+                var_dump("morde a foca");
                 die("Error");
             }
             $hashedToken = password_hash($token, PASSWORD_DEFAULT);
 
             if(!$this->resetModel->insertToken($userEmail, $selector, $hashedToken, $expires))
             {
+                var_dump("morde a foca1");
                 die("Error");
             }
             ## SENDING EMAIL
@@ -190,7 +193,7 @@ class Users extends sys_utils
             $subject  = 'Reset your  account password';
             $message  = '<p>We received a password reset request. Here is the link to reset your password, if you did not made this request, ignore this email</p>';
             $message .= '<p>Password reset link:<br>';
-            $message .= '<a href="' . $url . '">' . $url . '</<></p>';
+            $message .= '<a href="' . $url . '">' . $url . '</a></p>';
 
             $headers  = "From: Shop <ines@ideiasfrescas.com>\r\n";
             $headers .= "Reply-to: ines@ideiasfrescas.com\r\n";
