@@ -13,7 +13,8 @@
             if($modo=="signup")
             {
                 $query = "SELECT * FROM " . BDPX . "_users WHERE email  = '".$array[0]."' OR username = '".$array[1]."'";
-            }else
+            }
+            else
             {
                 $query = "SELECT * FROM " . BDPX . "_users WHERE email  = '".$array[0]."' OR username = '".$array[0]."'";
             }
@@ -39,10 +40,12 @@
                 '". $data['email'] ."', 
                 '". $data['pwd'] ."')");
             //echo SQL::$error;
-            if ($res) {
+            if ($res) 
+            {
                 return TRUE;
             }
-            else {
+            else 
+            {
                 return FALSE;
             }
         }
@@ -51,7 +54,8 @@
         {
             $result = false;
 
-            if(!empty($row = $this->findUsername([$name], "login"))){
+            if(!empty($row = $this->findUsername([$name], "login")))
+            {
                 $hashedPassword = $row['pwd'];
                 if(password_verify($password, $hashedPassword)) $result = $row;
             }
@@ -61,49 +65,90 @@
         public function deleteToken(){
             $userEmail = $_POST["email"];
             $stmt = mysqli_stmt_init(SQL::getInstance()->getConnection());
-            if(!mysqli_stmt_prepare($stmt,"DELETE FROM " . BDPX . "_pwdReset WHERE pwdResetEmail=?")){
-               echo "there was an error!!";
+            if(!mysqli_stmt_prepare($stmt,"DELETE FROM " . BDPX . "_pwdReset WHERE pwdResetEmail=?"))
+            {
+               echo "There was an error!!";
                exit();
-            }else{
+            }
+            else
+            {
                mysqli_stmt_bind_param($stmt, "s", $userEmail);
                mysqli_stmt_execute($stmt);
             }
         }
-        public function insertData(){
-            //$res = SQL::run("INSERT INTO pwdReset(pwdResetEmail, pwdResetSelector, pwdResetToken, pwdResetExpires) 
-            //VALUES(?, ?, ?, ?);");
-            
+        public function insertToken(){
+
             $stmt = mysqli_stmt_init(SQL::getInstance()->getConnection());
             if(!mysqli_stmt_prepare($stmt, "INSERT INTO " . BDPX . "_pwdReset(pwdResetEmail, pwdResetSelector, pwdResetToken, pwdResetExpires) 
-            VALUES(?, ?, ?, ?);")){
-                echo "there was an error!!";
+                VALUES(?, ?, ?, ?);"))
+            {
+                echo "There was an error!!";
                 exit();
-            }else{
-                $expires = date("U") + 1800;//1 hour from now
-                $token = random_bytes(32);
-                $hashedToken = password_hash($token, PASSWORD_DEFAULT);
+            }
+            else
+            {
                 mysqli_stmt_bind_param($stmt, "ssss", $userEmail, $selector, $hashedToken, $expires);
-                mysqli_stmt_execute($stmt);
+                if(mysqli_stmt_execute($stmt))
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
             }
             mysqli_stmt_close($stmt);
             mysqli_close(SQL::getInstance()->getConnection());
 
-            $url = "www.exportador.ifresh-host.eu/create-new-password.php?selector =" . $selector . "&validator=" . bin2hex($token);
-            $userEmail = $_POST["email"];
             
-            $to = $userEmail;
-            $subject  = 'Reset your password for shop';
-            $message  = '<p>We received a password reset request. Here is the link to reset your password, if you did not made this request, igore this email</p>';
-            $message .= '<p>Password reset link:<br>';
-            $message .= '<a href="' . $url . '">' .$url .'</<></p>';
+        }
+        ## RESET PWD - GET TIME
+        public function resetPassword($selector,$currentDate)
+        {
+            $currentDate =date("U");
+            $stmt = mysqli_stmt_init(SQL::getInstance()->getConnection());
+            if(!mysqli_stmt_prepare($stmt, "SELECT * FROM " . BDPX . "_pwdReset WHERE pwdResetSelector=? AND pwdResetExpires >= :currentDate"))
+            {
+                echo "there was an error!!";
+                exit();
+            }
+            else
+            {
+                mysqli_stmt_bind_param($stmt, "s", $selector, $currentDate);
+                mysqli_stmt_execute($stmt);
 
-            $headers = "From: Shop <ines@ideiasfrescas.com>\r\n";
-            $headers .="Reply-to: ines@ideiasfrescas.com\r\n";
-            $headers .="Content-type: text/html\r\n";
+                if($stmt && $stmt->num_rows > 0){
+                    return $stmt;
+                }
+                else{
+                    return false;
+                }
+                mysqli_stmt_close($stmt);
+                mysqli_close(SQL::getInstance()->getConnection());
+            }
+        }
+        public function updatePassword($newpwdhash, $tokenEmail)
+        {
+            $stmt = mysqli_stmt_init(SQL::getInstance()->getConnection());
+            if(!mysqli_stmt_prepare($stmt, "UPDATE " . BDPX . "_users SET pwd=? WHERE email=:email"))
+            {
+                echo "there was an error!!";
+                exit();
+            }
+            else
+            {
+                mysqli_stmt_bind_param($stmt, "ss", $newpwdhash, $tokenEmail);
+                mysqli_stmt_execute($stmt);
 
-            mail($to, $subject, $message, $headers);
-            flash("reset","Reset successful");
-            redirect('../reset-password.php');
+                if($stmt && $stmt->num_rows > 0){
+                    return $stmt;
+                }
+                else{
+                    return false;
+                }
+                mysqli_stmt_close($stmt);
+                mysqli_close(SQL::getInstance()->getConnection());
+            }            
         }
         
     }
