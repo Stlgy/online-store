@@ -1,7 +1,7 @@
 <?php
 include_once 'libraries/start.php';
 include_once 'helpers/session_helper.php';
-
+/* include_once 'controllers/users.php'; */
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -21,30 +21,39 @@ include_once 'helpers/session_helper.php';
                 <div class="container-fluid">
                     <div class="row">
                        <?php 
-                            $selector = $_GET["selector"];
-                            $validator = $_GET["validator"];
-
-                            if(empty($selector) || empty( $validator))
+                            if(empty($_GET['selector']) || empty($_GET['validator']))
                             {
-                                echo "Invalid Request";
+                                echo 'Could not validate your request!';
+                                //var_dump($_GET);
                             }
                             else
                             {
-                                if(ctype_xdigit($selector) == true && ctype_xdigit($validator) == true)
+                                $selector = $_GET['selector'];
+                                $validator = $_GET['validator'];
+                                if(ctype_xdigit($selector) && ctype_xdigit($validator)) 
                                 {
-                                ?>
-                                <?php flash('newReset'); ?>
-                                <form class="" action=controllers/users.php method="post">
+                            ?>
+                    
+                            <?php flash('newReset'); ?>
+
+                                <form class="" action=controllers/users.php method="POST">
                                 
+                                    <input type="hidden" name="type" value="reset"/>
                                     <input type="hidden" name="selector" value="<?php echo $selector?>"/>
                                     <input type="hidden" name="validator" value="<?php echo $validator?>"/>
+
                                     <input type="password" name="pwd" placeholder="Enter new password">
                                     <input type="password" name="pwdrepeat" placeholder="Repeat new password">
-                                    <button type="submit" name="reset-pwd-submit">RECEIVE EMAIL</button>
+
+                                    <button type="submit" name="reset-pwd-submit">SUBMIT</button>
+                                   
                                 </form>
-                                <?php
-                                }
+                        <?php
                             }
+                            /* else
+                            {
+                                 echo 'Could not validate your request!'; */
+                            }                          
                        ?>
                     </div>
                 </div>
@@ -54,10 +63,10 @@ include_once 'helpers/session_helper.php';
     <div>
         <!-- Footer -->
         <!-- <div class="container-fluid text-center footer"> -->
-        <?php include_once "libraries/footer.php"; ?>
+        <?php 
+            include_once "libraries/footer.php"; 
+        ?>
     </div>
 </body>
 <html>
-
-
-
+                       
