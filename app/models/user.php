@@ -3,7 +3,8 @@
     
     include('../libraries/class_utils.php');
 
-    class User extends sys_utils{
+    class User extends sys_utils
+    {
  
         ###FIND USER BY EXIXTING  EMAIL || USERNAME
         public function findUsername($array, $modo)
@@ -42,15 +43,15 @@
             //echo SQL::$error;
             if ($res) 
             {
-                return TRUE;
+                return true;
             }
             else 
             {
-                return FALSE;
+                return false;
             }
         }
         ### LOGIN USER   
-        public function login($name, $password)
+        public function login($name, $password) 
         {
             $result = false;
 
@@ -61,72 +62,35 @@
             }
             return $result;
         }
-         ##Delete exixting TOKEN from user 
-        public function deleteToken(){
+        ##Delete exixting TOKEN from user 
+         public function deleteEmail(){
         
             $userEmail = $_POST["email"];
-            $res = SQL::runprepareStmt("DELETE FROM " . BDPX . "_pwdReset WHERE pwdResetEmail=?","s",[$userEmail]);
-
-           return $res;
-        }
-        public function insertToken($userEmail, $selector, $hashedToken, $expires)
+            $res = SQL::runPrepareStmt("DELETE FROM " . BDPX . "_pwdReset WHERE pwdResetEmail=?","s",[$userEmail]);
+            //echo SQL::$error;
+            //var_dump($res);
+            return $res;
+        } 
+       public function insertToken($userEmail, $selector, $hashedToken, $expires)
        {
-            
-            $res = SQL::runprepareStmt("INSERT INTO " . BDPX . "_pwdReset (pwdResetId,pwdResetEmail,pwdResetSelector,pwdResetToken,pwdResetExpires) VALUES 
+            $res = SQL::runPrepareStmt("INSERT INTO " . BDPX . "_pwdReset (pwdResetId,pwdResetEmail,pwdResetSelector,pwdResetToken,pwdResetExpires) VALUES 
             (NULL,?,?,?,?)","ssss",[$userEmail, $selector, $hashedToken, $expires]);
-            
-             return $res;
-            
+            var_dump($res);
+             return $res;           
         }
-       
         ## RESET PWD - GET TIME
-        public function resetPassword($selector,$currentDate)
+        public function resetPassword($selector,$currentDate) 
         {
-            $currentDate =date("U");
-            $stmt = mysqli_stmt_init(SQL::getInstance()->getConnection());
-            if(!mysqli_stmt_prepare($stmt, "SELECT * FROM " . BDPX . "_pwdReset WHERE pwdResetSelector=? AND pwdResetExpires >= :currentDate"))
-            {
-                echo "there was an error!!";
-                exit();
-            }
-            else
-            {
-                mysqli_stmt_bind_param($stmt, "s", $selector, $currentDate);
-                mysqli_stmt_execute($stmt);
-
-                if($stmt && $stmt->num_rows > 0){
-                    return $stmt;
-                }
-                else{
-                    return false;
-                }
-                mysqli_stmt_close($stmt);
-                //mysqli_close(SQL::getInstance()->getConnection());
-            }
+           // $currentDate =date("U");
+            $res = SQL::runPrepareStmt("SELECT * FROM ". BDPX . "_pwdReset WHERE pwdResetSelector=? AND pwdResetExpires=?","ss",[$currentDate]);
+            return $res;
         }
         public function updatePassword($newpwdhash, $tokenEmail)
         {
-            $stmt = mysqli_stmt_init(SQL::getInstance()->getConnection());
-            if(!mysqli_stmt_prepare($stmt, "UPDATE " . BDPX . "_users SET pwd=? WHERE email=:email"))
-            {
-                echo "there was an error!!";
-                exit();
-            }
-            else
-            {
-                mysqli_stmt_bind_param($stmt, "ss", $newpwdhash, $tokenEmail);
-                mysqli_stmt_execute($stmt);
-
-                if($stmt && $stmt->num_rows > 0){
-                    return $stmt;
-                }
-                else{
-                    return false;
-                }
-                mysqli_stmt_close($stmt);
-                //mysqli_close(SQL::getInstance()->getConnection());
-            }            
-        }
-        
+            $res = SQL::runPrepareStmt("UPDATE " .BDPX . "_users SET pwd?","ss",[$newpwdhash, $tokenEmail]);
+            return $res;
+        }             
     }
+         
+    
 ?>
