@@ -172,21 +172,21 @@ class Users extends sys_utils
             //token for authenticate that it's the correct user
             $token = random_bytes(32); 
 
-            $url = "www.exportador.ifresh-host.eu/create-new-password.php?selector =" . $selector . "&validator=" . bin2hex($token);
+            $url = "https://www.exportador.ifresh-host.eu/create-new-password.php?selector =" . $selector . "&validator=" . bin2hex($token);
             $expires = date("U") + 1800; //expiration half an hour?
 
-            if(!$this->resetModel->deleteToken($userEmail))
+          /*   if(!$this->resetModel->deleteEmail($userEmail))
             {
-                var_dump("morde a foca");
+                var_dump("morde a foca delete");
                 die("Error");
-            }
-            $hashedToken = password_hash($token, PASSWORD_DEFAULT);
-
+            }  */
+            $hashedToken = password_hash($token, PASSWORD_DEFAULT); 
+ 
             if(!$this->resetModel->insertToken($userEmail, $selector, $hashedToken, $expires))
             {
-                var_dump("morde a foca1");
-                die("Error");
-            }
+                /* var_dump("morde a foca insert");*/
+                die("Error"); 
+            } 
             ## SENDING EMAIL
 
             $to = $userEmail;
@@ -249,7 +249,8 @@ class Users extends sys_utils
                 flash("newReset", "You need to re-Submit your reset request");
                 redirect($url);
             }
-            $tokenEmail =$row->pwdResetEmail;
+            $tokenEmail = $row->pwdResetEmail;
+            //echo $row;
 
             if(!$this->userModel->findUsername($tokenEmail, $tokenEmail))
             {
@@ -263,7 +264,7 @@ class Users extends sys_utils
                 flash("newReset", "There was an error");
                 redirect($url);
             }
-            if(!$this->resetModel->deleteToken($tokenEmail))
+            if(!$this->resetModel->deleteEMail($tokenEmail))
             {
                 flash("newReset", "There was an error");
                 redirect($url);
@@ -271,7 +272,7 @@ class Users extends sys_utils
             flash("newReset", "Password Updated", 'form-message form-message-green');
             redirect($url);
         }
-    }
+    } 
 }
 
 
