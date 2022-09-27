@@ -148,7 +148,8 @@ class Users extends sys_utils
     {  
         
         ## User clicked the reset button
-        if (isset($_POST['reset-request-submit'])) {
+        if (isset($_POST['reset-request-submit'])) 
+        {
 
             $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
             $userEmail = trim($_POST["email"]);
@@ -172,8 +173,8 @@ class Users extends sys_utils
             //token for authenticate that it's the correct user
             $token = random_bytes(32); 
 
-            $url = "https://www.exportador.ifresh-host.eu/onlinestore/app/create-new-password.php?selector=" . $selector . "&validator=" . bin2hex($token);
-            $expires = date("U") + 1800; //expiration half an hour?
+            $url = "https://www.exportador.ifresh-host.eu/onlinestore/app/create-new-password.php?selector=".$selector."&validator=".bin2hex($token);
+            $expires = date("U") + 3600; //expiration half an hour?
 
            if(!$this->resetModel->deleteEmail($userEmail))
             {
@@ -203,6 +204,9 @@ class Users extends sys_utils
             flash("reset", "Check your mail, 'form-message-green");
             redirect('../reset-password.php');
         }
+        else{
+            redirect('../index.php');
+        }
     }
     public function resetPassword()
     {
@@ -216,9 +220,9 @@ class Users extends sys_utils
                 'selector'          => trim($_POST['selector']),
                 'validator'         => trim($_POST['validator']),
                 'pwd'               => trim($_POST['pwd']),
-                'pwdRepeat'         => trim($_POST['pwdrepeat'])
+                'pwdrepeat'         => trim($_POST['pwdrepeat'])
             ];
-           echo "<pre>";
+          /*  echo "<pre>"; */
            /*  print_r($data); 
             echo "</pre>";
             die(); */
@@ -229,23 +233,34 @@ class Users extends sys_utils
             flash("newReset", "Please fill out all fields");
             redirect($url);
             }
-            else if($data['pwd'] != $data['pwdrepeat'])
-            {
-            flash("newReset", "Passwords do not match");
-            redirect($url);
-            }
-            else if((strlen($data['pwd']) < 6))
-            {
-                 print_r($data); 
-            echo "</pre>";
-            die();
-                flash("newReset", "Invalid password");
+                else if($data['pwd'] != $data['pwdrepeat'])
+                {
+                /* print_r($data); 
+                echo "</pre>";
+                die(); */ 
+                flash("newReset", "Passwords do not match!!!!");
                 redirect($url);
-            }
-            $currentDate =date("U");
-            
-            if(!$row = $this->resetModel->resetPassword($data['selector'],$currentDate))
+                }
+                    else if((strlen($data['pwd']) < 6))
+                    {
+                        
+                        flash("newReset", "Invalid password");
+                        redirect($url);
+                    }
+
+                    
+            $currentDate =date("U") + 3600;
+
+
+            var_dump("morrrreeee");
+
+
+
+
+        
+            if(!$row = $this->userModel->resetPassword($data['selector'],$currentDate))
             {
+                
                 flash("newReset", "Sorry. The link is no longer valid");
                 redirect($url);
             }
@@ -255,12 +270,13 @@ class Users extends sys_utils
 
             if(!$tokencheck)
             {
+                
                 flash("newReset", "You need to re-Submit your reset request");
                 redirect($url);
             }
             $tokenEmail = $row->pwdResetEmail;
             //echo $row;
-
+            
             if(!$this->userModel->findUsername($tokenEmail, $tokenEmail))
             {
                 flash("newReset", "There was an error");
@@ -280,6 +296,10 @@ class Users extends sys_utils
             }
             flash("newReset", "Password Updated", 'form-message form-message-green');
             redirect($url);
+        }
+        else
+        {
+             redirect('../index.php');
         }
     } 
 }
