@@ -16,7 +16,7 @@ class Users extends sys_utils
     {
         $this->userModel = new User;
         $this->resetModel = new User;
-    } 
+    }
 
     public function register()
     {
@@ -38,50 +38,49 @@ class Users extends sys_utils
         $road = '../login.php';
         $road2 = '../signup.php';
         ### VALIDATE INPUTS
-        if (empty($data['firstname']) || empty($data['lastname']) || empty($data['username']) ||
-            empty($data['email']) || empty($data['pwd']) || empty($data['pwdrepeat'])) {
+        if (
+            empty($data['firstname']) || empty($data['lastname']) || empty($data['username']) ||
+            empty($data['email']) || empty($data['pwd']) || empty($data['pwdrepeat'])
+        ) {
             flash("register", "Please fill out all fields"); //assign error
-            redirect ($road2);
+            redirect($road2);
         }
         if (!preg_match("/^[a-zA-Z0-9]*$/", $data['firstname'])) {
             flash("register", "Invalid firstname");
-            redirect ($road2);
+            redirect($road2);
         }
         if (!preg_match("/^[a-zA-Z0-9]*$/", $data['lastname'])) {
             flash("register", "Invalid lastname");
-            redirect ($road2);
+            redirect($road2);
         }
         if (!preg_match("/^[a-zA-Z0-9]*$/", $data['username'])) {
             flash("register", "Invalid username");
-            redirect ($road2);
+            redirect($road2);
         }
         if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
             flash("register", "Invalid email");
-            redirect ($road2);
+            redirect($road2);
         }
         if (strlen($data['pwd']) < 6) {
             flash("register", "Invalid password");
-            redirect ($road2);
-        } 
-        else if ($data['pwd'] !== $data['pwdrepeat']) {
+            redirect($road2);
+        } else if ($data['pwd'] !== $data['pwdrepeat']) {
             flash("register", "No matching passwords");
-            redirect ($road2);
+            redirect($road2);
         }
-        ### CHECK IF EMAIL || USERNAME ALREADY EXIST
+        ### CHECK IF EMAIL || EMAIL OR USERNAME ALREADY EXISTS
         if ($this->userModel->findUsername([$data['email'], $data['username']], "signup")) {
             flash("register", "Username or email already exist");
             redirect('../signup.php');
-        }
-        else{
+        } else {
             ### ALL VALIDATIONS CHECKED
             ### HASH PWD
-            $data['pwd'] = password_hash($data['pwd'], PASSWORD_DEFAULT);   
+            $data['pwd'] = password_hash($data['pwd'], PASSWORD_DEFAULT);
             ### REGISTER
             if ($this->userModel->register($data)) {
-                redirect ($road); //send to login pag
-            } 
-            else { //stop script
-                 die("Something went wrong");
+                redirect($road); //send to login pag
+            } else { //stop script
+                die("Something went wrong");
             }
         }
     }
@@ -89,7 +88,7 @@ class Users extends sys_utils
     {
         //echo 1;
         $road = '../signup.php';
-        
+
         ### SANITIZE POST DATA
         $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
 
@@ -98,31 +97,28 @@ class Users extends sys_utils
             'username' => trim($_POST['username']),
             'pwd'      => trim($_POST['pwd'])
         ];
-       
+
         //var_dump($data);
         if (empty($data['username']) || empty($data['pwd'])) {
             flash("login", "Please fill out all fields"); //assign error
             redirect("../login.php");
             //exit();
         }
-        
+
         ### CHECK FOR EMAIL || USERNAME
-        if ($this->userModel->findUsername([$data['username']],"login")) 
-        {
+        if ($this->userModel->findUsername([$data['username']], "login")) {
             ## IF FOUND USER
             $loggedInUser = $this->userModel->login($data['username'], $data['pwd']);
             //var_dump($loggedInUser);
             if ($loggedInUser) {
                 ### CREAT SESSION
-                $this->createSession($loggedInUser);              
-            } 
-            else {              
+                $this->createSession($loggedInUser);
+            } else {
                 flash("login", "Incorrect password");
-                redirect ('../login.php');
+                redirect('../login.php');
             }
-        } 
-        else {
-            redirect ($road);
+        } else {
+            redirect($road);
         }
     }
     public function createSession($user)
@@ -131,7 +127,7 @@ class Users extends sys_utils
         $_SESSION['id_u']       = $user["id_u"];
         $_SESSION['username']   = $user["username"];
         $_SESSION['email']      = $user["email"];
-        redirect ($road);
+        redirect($road);
     }
     public function logout()
     {
@@ -141,53 +137,48 @@ class Users extends sys_utils
         unset($_SESSION['username']);
         unset($_SESSION['email']);
         session_destroy();
-        redirect($road); 
-       
+        redirect($road);
     }
     public function sendEmail()
-    {  
-        
-        ## User clicked the reset button
-        if (isset($_POST['reset-request-submit'])) 
-        {
+    {
+        $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
 
-            $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
+        ## User clicked the reset button
+        if (isset($_POST['reset-request-submit'])) {
+
             $userEmail = trim($_POST["email"]);
 
-            if(empty($userEmail))
-            {
-            flash("reset", "Please insert email");
-            redirect("../reset-password.php");
+            if (empty($userEmail)) {
+                flash("reset", "Please insert email");
+                redirect("../reset-password.php");
             }
 
-            if(!filter_var($userEmail, FILTER_VALIDATE_EMAIL))
-            {
-            flash("reset", "Invalid email");
-            redirect("../reset-password.php");
+            if (!filter_var($userEmail, FILTER_VALIDATE_EMAIL)) {
+                flash("reset", "Invalid email");
+                redirect("../reset-password.php");
             }
 
             ## CREATING 2 TOKENS TO PREVENT TIMING ATTACKS
 
-            //token for checking DB to pinpoint the token needed to check the user with, when user get's back to website
+            //token used to query the user from the DB
             $selector = bin2hex(random_bytes(8));
-            //token for authenticate that it's the correct user
-            $token = random_bytes(32); 
+            //token used for confirmation once the DB entry has been matched
+            $token = random_bytes(32);
 
-            $url = "https://www.exportador.ifresh-host.eu/onlinestore/app/create-new-password.php?selector=".$selector."&validator=".bin2hex($token);
-            $expires = date("U") + 3600; //expiration half an hour?
+            $url = "https://www.exportador.ifresh-host.eu/onlinestore/app/create-new-password.php?selector=" . $selector . "&validator=" . bin2hex($token);
 
-           if(!$this->resetModel->deleteEmail($userEmail))
-            {
+            $expires = date("U") + 3600; //expiration in an hour
+
+            if (!$this->resetModel->deleteEmail($userEmail)) {
                 //var_dump("morde a foca delete");
-                die("Error");
-            }  
-            $hashedToken = password_hash($token, PASSWORD_DEFAULT); 
- 
-            if(!$this->resetModel->insertToken($userEmail, $selector, $hashedToken, $expires))
-            {
+                die("Error!");
+            }
+            $hashedToken = password_hash($token, PASSWORD_DEFAULT);
+
+            if (!$this->resetModel->insertToken($userEmail, $selector, $hashedToken, $expires)) {
                 /* var_dump("morde a foca insert");*/
-                die("Error"); 
-            } 
+                die("Error");
+            }
             ## SENDING EMAIL
 
             $to = $userEmail;
@@ -201,10 +192,9 @@ class Users extends sys_utils
             $headers .= "Content-type: text/html\r\n";
 
             mail($to, $subject, $message, $headers);
-            flash("reset", "Check your mail, 'form-message-green");
+            flash("reset", "Check your mail", 'form-message-green');
             redirect('../reset-password.php');
-        }
-        else{
+        } else {
             redirect('../index.php');
         }
     }
@@ -213,95 +203,90 @@ class Users extends sys_utils
         ## SANITIZE DATA
         $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
 
-        if(isset($_POST["reset-pwd-submit"]))
-        { 
-            
+        if (isset($_POST["reset-pwd-submit"])) {
+
             $data = [
                 'selector'          => trim($_POST['selector']),
                 'validator'         => trim($_POST['validator']),
                 'pwd'               => trim($_POST['pwd']),
                 'pwdrepeat'         => trim($_POST['pwdrepeat'])
             ];
-          /*  echo "<pre>"; */
-           /*  print_r($data); 
+           /*  echo "<pre>"; 
+           print_r($data); 
             echo "</pre>";
-            die(); */
-            $url = '../create-new-password.php?selector='.$data['selector'].'&validator='.$data['validator'];
-            
-            if(empty($_POST['pwd'] || $_POST['pwdrepeat']))
-            {
-            flash("newReset", "Please fill out all fields");
-            redirect($url);
-            }
-                else if($data['pwd'] != $data['pwdrepeat'])
-                {
-                /* print_r($data); 
-                echo "</pre>";
-                die(); */ 
+            die();   */
+            $url = '../create-new-password.php?selector=' . $data['selector'] . '&validator=' . $data['validator'];
+
+            if (empty($_POST['pwd'] || $_POST['pwdrepeat'])) {
+                flash("newReset", "Please fill out all fields");
+                redirect($url);
+            } else if ($data['pwd'] != $data['pwdrepeat']) {
                 flash("newReset", "Passwords do not match!!!!");
                 redirect($url);
-                }
-                    else if((strlen($data['pwd']) < 6))
-                    {
-                        
-                        flash("newReset", "Invalid password");
-                        redirect($url);
-                    }
-
-                    
-            $currentDate =date("U") + 3600;
-
-
-            var_dump("morrrreeee");
-
-
-
-
-        
-            if(!$row = $this->userModel->resetPassword($data['selector'],$currentDate))
-            {
-                
-                flash("newReset", "Sorry. The link is no longer valid");
+            } else if ((strlen($data['pwd']) < 6)) {
+                flash("newReset", "Invalid password");
                 redirect($url);
             }
-            $tokenb     = hex2bin($data['validator']);
 
-            $tokencheck = password_verify($tokenb, $row->pwdResetToken);
+            $currentDate = date("U"); //in seconds
 
-            if(!$tokencheck)
-            {
-                
+            /* $row = $this->userModel->resetPassword($data['selector'],$currentDate);
+                if(!isset($row['pwdResetId'])){ */
+
+            $row=$this->userModel->resetPassword($data['selector'], $currentDate);
+            /* var_dump($row);
+            die(); */
+             if(!isset($row['pwdResetId'])){ 
+
+                flash("newReset", "Sorry. The link is no longer valid");
+                redirect($url);
+            
+            }
+            $tokenb = hex2bin($data['validator']);
+
+
+            $tokenCheck = password_verify($tokenb, $row['pwdResetToken']);
+
+           /*  var_dump($tokenCheck);
+                die(); */
+            if (!$tokenCheck) {
                 flash("newReset", "You need to re-Submit your reset request");
                 redirect($url);
             }
-            $tokenEmail = $row->pwdResetEmail;
-            //echo $row;
-            
-            if(!$this->userModel->findUsername($tokenEmail, $tokenEmail))
-            {
-                flash("newReset", "There was an error");
-                redirect($url);
-            }
-            $newPwdhash = password_hash($data['pwd'], PASSWORD_DEFAULT);
 
-            if(!$this->userModel->updatePassword($newPwdhash, $tokenEmail))
-            {
-                flash("newReset", "There was an error");
+            $tokenEmail = $row['pwdResetToken'];
+            /*   var_dump($tokenEmail);
+                die();  
+             */
+
+
+
+             
+            //using email queried to check for user in users table
+            //who shares the same email
+             if (!$this->userModel->findUsername($tokenEmail,"reset")) {
+                
+                flash("newReset", "There was an error!!!");
+               
                 redirect($url);
-            }
-            if(!$this->resetModel->deleteEMail($tokenEmail))
-            {
+            } 
+
+            $newPwdHash = password_hash($data['pwd'], PASSWORD_DEFAULT);
+
+            if (!$this->userModel->updatePassword($newPwdHash, $tokenEmail)) {
+                flash("newReset", "There was an error up");
+                redirect($url);
+            } 
+            if (!$this->resetModel->deleteEmail($tokenEmail)) {
                 flash("newReset", "There was an error");
                 redirect($url);
             }
             flash("newReset", "Password Updated", 'form-message form-message-green');
             redirect($url);
+        } else {
+            redirect('../index.php');
         }
-        else
-        {
-             redirect('../index.php');
-        }
-    } 
+    }
 }
 
 
@@ -309,10 +294,8 @@ class Users extends sys_utils
 $init = new Users;
 
 ### ENSURING THE USER IS SENDING A POST REQUEST
-if ($_SERVER['REQUEST_METHOD'] == 'POST') 
-{
-    switch ($_POST['type']) 
-    {
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    switch ($_POST['type']) {
         case 'register':
             $init->register();
             break;
@@ -328,10 +311,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
         default:
             redirect("../index.php");
     }
-}
-else {
-    switch ($_GET['q']) 
-    {
+} else {
+    switch ($_GET['q']) {
         case 'logout':
             $init->logout();
             break;
