@@ -18,12 +18,17 @@ class User extends sys_utils
         }
 
         $res = SQL::run($query);
+      /*   echo "<pre>";
+            print_r($res); 
+            echo "</pre>"; 
+        die(); */
         if ($res && $res->num_rows > 0) { //Também pode ser $res->num_rows == 1 dado que só queremos 1 row e os emails e usernames deverão ser UNIQUE na tabela.
             $payload = $res->fetch_assoc(); //Associar os resultados MySQL a uma variavel php (array)
         }
-        /* echo "<pre>";
+       /*  echo "<pre>";
             print_r($payload); 
-            echo "</pre>"; */
+            echo "</pre>"; 
+            die(); */
         return $payload;
     }
 
@@ -56,42 +61,67 @@ class User extends sys_utils
         return $result;
     }
     ##Delete exixting TOKEN from user 
-    public function deleteEmail()
-    {
-
-        $userEmail = $_POST["email"];
-        $res = SQL::runPrepareStmt("DELETE FROM " . BDPX . "_pwdReset WHERE pwdResetEmail=?", "s", [$userEmail]);
+    public function deleteEmail(){
+        $userEmail = filter_var($_POST["email"],FILTER_SANITIZE_STRING);
+        //$res = SQL::runPrepareStmt("DELETE FROM " . BDPX . "_pwdReset WHERE pwdResetEmail=?", "s", [$userEmail]);
+        $res = SQL::run("DELETE FROM " . BDPX . "_pwdReset WHERE pwdResetEmail='$userEmail'");
+        //echo "DELETE FROM " . BDPX . "_pwdReset WHERE pwdResetEmail='$userEmail'";
         //echo SQL::$error;
         //var_dump($res);
+        //var_dump($_POST);
         return $res;
     }
-    public function insertToken($userEmail, $selector, $hashedToken, $expires)
-    {
-        $res = SQL::runPrepareStmt("INSERT INTO " . BDPX . "_pwdReset (pwdResetId,pwdResetEmail,pwdResetSelector,pwdResetToken,pwdResetExpires) VALUES 
-            (NULL,?,?,?,?)", "ssss", [$userEmail, $selector, $hashedToken, $expires]);
-        //var_dump($res);
-        return $res;
+    public function insertToken($userEmail, $selector, $hashedToken, $expires){
+        /* $res = SQL::runPrepareStmt("INSERT INTO " . BDPX . "_pwdReset (pwdResetId,pwdResetEmail,pwdResetSelector,pwdResetToken,pwdResetExpires) VALUES 
+            (NULL,?,?,?,?)", "ssss", [$userEmail, $selector, $hashedToken, $expires]); */
+
+        
+        
+        $res = SQL::run("INSERT INTO " . BDPX . "_pwdReset (pwdResetId,pwdResetEmail,pwdResetSelector,pwdResetToken,pwdResetExpires) 
+        VALUES ('','$userEmail', '$selector', '$hashedToken', '$expires')");
+        
+        if($res){
+            return true;
+        }else{
+            return false;
+        }
     }
     ## RESET PWD - GET TIME
+
     public function resetPassword($selector, $currentDate)
     {
-        $currentDate =date("U") + 3600;
+        /* $resultado = false;
+        
         $res = SQL::runPrepareStmt("SELECT * FROM " . BDPX . "_pwdReset WHERE pwdResetSelector=? AND pwdResetExpires>=?", "ss", [$selector, $currentDate]);
-        return $res;
-        echo SQL::$error;
-        var_dump($res);
+        if($res && $res->num_rows == 1){ //Se o $res for verdadeiro e houver uma row com dados
+            $resultado = $res->fetch_assoc();//fetch_assoc() ao resultado do sql para colocar tudo num array */
+        $result=[];
+        $res = SQL::run("SELECT * FROM " . BDPX . "_pwdReset WHERE pwdResetSelector='$selector' AND pwdResetExpires>='$currentDate'");
+        //echo "SELECT * FROM " . BDPX . "_pwdReset WHERE pwdResetSelector='$selector' AND pwdResetExpires>='$currentDate'";
+        if($res && $res->num_rows > 0){
+            $result = $res->fetch_assoc();
+            
+            echo SQL::$error;
+            //var_dump($res);
+           /*  echo "<pre>";
+            print_r($res); 
+            echo "</pre>";
+            die();  */
+        } 
+        
+        return $result; 
     }
-    public function updatePassword($newpwdhash, $tokenEmail)
+    public function updatePassword($newPwdHash, $tokenEmail)
     {
-
-        $tokenEmail = $_POST["email"];
-        $res = SQL::runPrepareStmt("UPDATE " . BDPX . "_users SET pwd=?", "ss", [$newpwdhash, $tokenEmail]);
+        
+        /* $res = SQL::runPrepareStmt("UPDATE " . BDPX . "_users SET pwd=?", "ss", [$newPwdHash, $tokenEmail]); */
+        $res = SQL::run("UPDATE " . BDPX . "_users SET pwd='$newPwdHash','$tokenEmail'");
+        /* echo "<pre>";
+            print_r($res); 
+            echo "</pre>";
+            die(); */
         return $res;
-
-
-    } 
-      
     }
-         
-
+}
+ 
 ?>
