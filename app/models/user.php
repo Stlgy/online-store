@@ -5,8 +5,9 @@ include('../libraries/class_utils.php');
 
 class User extends sys_utils{
 
-    ### FIND USER BY EXISTING  EMAIL || USERNAME
-    public function findUsername($array, $modo){
+    ###FIND USER BY EXISTING  EMAIL || USERNAME
+    public function findUsername($array, $modo) {
+
         $payload = []; //Instanciar a variavel de resultado para não dar erros desnecessários.
 
         if ($modo == "signup") {
@@ -22,7 +23,8 @@ class User extends sys_utils{
         }
         return $payload;
     }
-    public function findEmail($tokenEmail){
+    public function findEmail($tokenEmail) {
+
         $result=[];
         $res = SQL::run("SELECT * FROM " . BDPX . "_users WHERE email='$tokenEmail'");
         if($res && $res->num_rows > 0){
@@ -32,7 +34,8 @@ class User extends sys_utils{
     }
 
     ### REGISTER USER
-    public function register($data): bool{   //only 1 arg all data is stored in array
+    public function register($data): bool { //only 1 arg all data is stored in array
+
         $res = SQL::run("INSERT INTO " . BDPX . "_users(firstname, lastname, username, email, pwd)
             VALUES (
                 '" . $data['firstname'] . "',
@@ -49,8 +52,8 @@ class User extends sys_utils{
     }
 
     ### LOGIN USER   
-    public function login($name, $password)
-    {
+    public function login($name, $password) {
+
         $result = false;
 
         if (!empty($row = $this->findUsername([$name], "login"))) {
@@ -106,6 +109,7 @@ class User extends sys_utils{
 
     ### UPDATE PWD
     public function updatePassword($newPwdHash, $tokenEmail) {
+
         $res = SQL::run("UPDATE " . BDPX . "_users SET pwd='$newPwdHash' WHERE email='$tokenEmail'");
 
         if($res){
