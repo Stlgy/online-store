@@ -60,7 +60,7 @@ class User extends sys_utils{
         return $result;
     }
 
-    ##DELETE PREVIOUS EMAIL-TOKEN FROM RESET TABLE IS THERE'S ONE
+    ### DELETE PREVIOUS EMAIL-TOKEN FROM RESET TABLE IF THERE'S ONE
     public function deleteEmail() {
 
         $userEmail = filter_var($_POST["email"],FILTER_SANITIZE_STRING);
@@ -68,7 +68,7 @@ class User extends sys_utils{
         return $res;
     }
 
-    ## INSERT TOKEN FOR RESETING PWD
+    ### INSERT TOKEN FOR PWD RESET
     public function insertToken($userEmail, $selector, $hashedToken, $expires) {
         
         $res = SQL::run("INSERT INTO " . BDPX . "_pwdReset (pwdResetId,pwdResetEmail,pwdResetSelector,pwdResetToken,pwdResetExpires) 
@@ -81,7 +81,7 @@ class User extends sys_utils{
         }
     }
 
-    ## AFTER USAGE DELETE TOKEN
+    ### AFTER USAGE DELETE TOKEN
     public function deleteToken($tokenEmail) {
 
         $res = SQL::run("DELETE FROM " . BDPX . "_pwdReset WHERE pwdResetEmail='$tokenEmail'");
@@ -92,7 +92,7 @@ class User extends sys_utils{
         }
     }
 
-    ## RESET PWD - GET TIME
+    ### RESET PWD - GET TIME
     public function resetPassword($selector, $currentDate) {
        
         $result=[];
@@ -103,6 +103,8 @@ class User extends sys_utils{
         } 
         return $result; 
     }
+
+    ### UPDATE PWD
     public function updatePassword($newPwdHash, $tokenEmail) {
         $res = SQL::run("UPDATE " . BDPX . "_users SET pwd='$newPwdHash' WHERE email='$tokenEmail'");
 
