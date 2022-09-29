@@ -5,7 +5,7 @@ include('../libraries/class_utils.php');
 
 class User extends sys_utils{
 
-    ###FIND USER BY EXIXTING  EMAIL || USERNAME
+    ### FIND USER BY EXISTING  EMAIL || USERNAME
     public function findUsername($array, $modo){
         $payload = []; //Instanciar a variavel de resultado para não dar erros desnecessários.
 
