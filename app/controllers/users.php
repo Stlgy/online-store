@@ -6,21 +6,18 @@ require_once '../libraries/start.php';
 
 //phpinfo();
 
-class Users extends sys_utils
-{
+class Users extends sys_utils {
 
     private $userModel;
     private $resetModel;
 
-    public function __construct()
-    {
+    public function __construct() {
         $this->userModel = new User;
         $this->resetModel = new User;
     }
 
-    public function register()
-    {
-        ####PROCESS FORM####
+    public function register() {
+        #### PROCESS FORM####
 
         ### SANITIZE POST DATA
         $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
@@ -37,11 +34,10 @@ class Users extends sys_utils
 
         $road = '../login.php';
         $road2 = '../signup.php';
-        ### VALIDATE INPUTS
-        if (
-            empty($data['firstname']) || empty($data['lastname']) || empty($data['username']) ||
-            empty($data['email']) || empty($data['pwd']) || empty($data['pwdrepeat'])
-        ) {
+
+        ### VALIDATING INPUTS
+        if (empty($data['firstname']) || empty($data['lastname']) || empty($data['username']) ||
+            empty($data['email']) || empty($data['pwd']) || empty($data['pwdrepeat'])) {
             flash("register", "Please fill out all fields"); //assign error
             redirect($road2);
         }
@@ -68,13 +64,14 @@ class Users extends sys_utils
             flash("register", "No matching passwords");
             redirect($road2);
         }
-        ### CHECK IF EMAIL || EMAIL OR USERNAME ALREADY EXISTS
+
+        ### CHECK IF EMAIL || USERNAME ALREADY EXISTS
         if ($this->userModel->findUsername([$data['email'], $data['username']], "signup")) {
             flash("register", "Username or email already exist");
             redirect('../signup.php');
         } else {
-            ### ALL VALIDATIONS CHECKED
-            ### HASH PWD
+            
+            ### ALL VALIDATIONS CHECKED HASH PWD
             $data['pwd'] = password_hash($data['pwd'], PASSWORD_DEFAULT);
             ### REGISTER
             if ($this->userModel->register($data)) {
@@ -107,9 +104,9 @@ class Users extends sys_utils
 
         ### CHECK FOR EMAIL || USERNAME
         if ($this->userModel->findUsername([$data['username']], "login")) {
-            ## IF FOUND USER
+            ###IF USER WAS FOUND
             $loggedInUser = $this->userModel->login($data['username'], $data['pwd']);
-            //var_dump($loggedInUser);
+            
             if ($loggedInUser) {
                 ### CREAT SESSION
                 $this->createSession($loggedInUser);
@@ -121,17 +118,15 @@ class Users extends sys_utils
             redirect($road);
         }
     }
-    public function createSession($user)
-    {
+    public function createSession($user) {
         $road = '../index.php';
         $_SESSION['id_u']       = $user["id_u"];
         $_SESSION['username']   = $user["username"];
         $_SESSION['email']      = $user["email"];
         redirect($road);
     }
-    public function logout()
-    {
-        //echo "bananas";
+    public function logout() {
+       
         $road = '../index.php';
         unset($_SESSION['id_u']);
         unset($_SESSION['username']);
@@ -139,11 +134,10 @@ class Users extends sys_utils
         session_destroy();
         redirect($road);
     }
-    public function sendEmail()
-    {
+    public function sendEmail() {
         $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
 
-        ## User clicked the reset button
+        ### USER CLICKED THE RESET BUTTON
         if (isset($_POST['reset-request-submit'])) {
 
             $userEmail = trim($_POST["email"]);
@@ -167,19 +161,17 @@ class Users extends sys_utils
 
             $url = "https://www.exportador.ifresh-host.eu/onlinestore/app/create-new-password.php?selector=" . $selector . "&validator=" . bin2hex($token);
 
-            $expires = date("U") + 3600; //expiration in an hour
+            $expires = date("U") + 3600; //expires within an hour
 
             if (!$this->resetModel->deleteEmail($userEmail)) {
-                //var_dump("morde a foca delete");
                 die("Error!");
             }
             $hashedToken = password_hash($token, PASSWORD_DEFAULT);
 
             if (!$this->resetModel->insertToken($userEmail, $selector, $hashedToken, $expires)) {
-                /* var_dump("morde a foca insert");*/
                 die("Error");
             }
-            ## SENDING EMAIL
+            ### SENDING EMAIL
 
             $to = $userEmail;
             $subject  = 'Reset your  account password';
@@ -198,9 +190,8 @@ class Users extends sys_utils
             redirect('../index.php');
         }
     }
-    public function resetPassword()
-    {
-        ## SANITIZE DATA
+    public function resetPassword() {
+        ### SANITIZE DATA
         $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
 
         if (isset($_POST["reset-pwd-submit"])) {
@@ -211,10 +202,7 @@ class Users extends sys_utils
                 'pwd'               => trim($_POST['pwd']),
                 'pwdrepeat'         => trim($_POST['pwdrepeat'])
             ];
-           /*  echo "<pre>"; 
-           print_r($data); 
-            echo "</pre>";
-            die();   */
+           
             $url = '../create-new-password.php?selector=' . $data['selector'] . '&validator=' . $data['validator'];
 
             if (empty($_POST['pwd'] || $_POST['pwdrepeat'])) {
@@ -228,15 +216,11 @@ class Users extends sys_utils
                 redirect($url);
             }
 
-            $currentDate = date("U"); //in seconds
-
-            /* $row = $this->userModel->resetPassword($data['selector'],$currentDate);
-                if(!isset($row['pwdResetId'])){ */
+            $currentDate = date("U"); 
 
             $row=$this->userModel->resetPassword($data['selector'], $currentDate);
-            /* var_dump($row);
-            die(); */
-             if(!isset($row['pwdResetId'])){ 
+            
+             if(!isset($row['pwdResetId'])) { 
 
                 flash("newReset", "Sorry. The link is no longer valid");
                 redirect($url);
@@ -244,31 +228,19 @@ class Users extends sys_utils
             }
             $tokenb = hex2bin($data['validator']);
 
-
             $tokenCheck = password_verify($tokenb, $row['pwdResetToken']);
 
-           /*  var_dump($tokenCheck);
-                die(); */
             if (!$tokenCheck) {
                 flash("newReset", "You need to re-Submit your reset request");
                 redirect($url);
             }
 
-            $tokenEmail = $row['pwdResetToken'];
-            /*   var_dump($tokenEmail);
-                die();  
-             */
-
-
-
-             
-            //using email queried to check for user in users table
-            //who shares the same email
-             if (!$this->userModel->findUsername($tokenEmail,"reset")) {
-                
-                flash("newReset", "There was an error!!!");
-               
-                redirect($url);
+            $tokenEmail = $row['pwdResetEmail'];
+           
+            if (!$this->userModel->findEmail($tokenEmail)) {
+            
+            flash("newReset", "There was an error!!!");
+            redirect($url);
             } 
 
             $newPwdHash = password_hash($data['pwd'], PASSWORD_DEFAULT);
@@ -277,7 +249,7 @@ class Users extends sys_utils
                 flash("newReset", "There was an error up");
                 redirect($url);
             } 
-            if (!$this->resetModel->deleteEmail($tokenEmail)) {
+            if (!$this->resetModel->deleteToken($tokenEmail)) {
                 flash("newReset", "There was an error");
                 redirect($url);
             }
@@ -288,8 +260,6 @@ class Users extends sys_utils
         }
     }
 }
-
-
 
 $init = new Users;
 
