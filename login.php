@@ -1,7 +1,6 @@
 <?php
 include_once 'libraries/start.php';
 include_once 'helpers/session_helper.php';
-
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -14,52 +13,37 @@ include_once 'helpers/session_helper.php';
 <body>
     <?php include_once "libraries/header.php"; ?>
 
-    <div class="container-fluid">
-        <div class="row main-content bg-success text-center">
-            <!-- <div class="col-md-4 text-center company__info"> -->
+    <div class="container-center">
+        <div class="row main-content text-center">
+            <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12 login__form ">
+                <br>
+                <h2>Log In</h2>
+                <br>
+                <?php //flash('login'); ?>
 
-            <!-- <div class="col-md-4 text-center company__info">
-                            <span class="company__logo"><h2><span class="fa fa-android"></span></h2></span>
-				        <h4 class="company_title">Shop Logo</h4>
-			            </div> -->
-            <div class="col-md-8 col-xs-12 col-sm-12 login__form ">
-                <div class="container-fluid">
+                <form class="form__login" action="controllers/users.php" method="post">
+                    <input type="hidden" name="type" value="login">
                     <div class="row">
-                        <h2>Log In</h2>
-                        <?php flash('login'); ?>
-                    </div>
-                    <div class="row">
-                        <form class="form__login" action="controllers/users.php" method="post">
-                            <input type="hidden" name="type" value="login">
-                            <div class="row">
-                                <input type="text" name="username" id="username" class="form__input" placeholder="Username/Email">
-                                <input type="password" name="pwd"  id="password" class="form__input" placeholder="Password">
-                            </div>
+                        
+                        <input type="text" name="username" id="username" class="form__input " placeholder="Username/Email">
+                        <input type="password" name="pwd" id="password" class="form__input" placeholder="Password">
                     </div>
                     <div class="row-submit">
-                    <?php
-                        /* if(isset($_GET["newpwd"])){
-                            if($_GET["newpwd"] === "passwordupdated"){
-                                flash("reset", "Password reseted");
-                            }
-                        } */
-                    ?>
-                        <input type="submit" value="Login" class="btn btn-pequeno">
-                    <div class="">
-                        <a href="reset-password.php" class="btn" role="button">Reset Password</a>
-                    </div>
-                    </form>
-                </div>
-                <div class="row-miss">
-                    <p>Don't have an account? <br><a href="./signup.php">Signup</a></p>
-                </div>
+                        <input type="submit" value="LOGIN" class="btn btn-pequeno">
+                        <div class="">
+                            <a href="reset-password.php" role="button" id="btns">RESET PASSWORD</a>
+                        </div>
+                </form>
+            </div>
+            <div class="row-miss">
+                <p>Don't have an account? <br><a href="./signup.php" id="btnsl">SIGNUP</a></p>
             </div>
         </div>
-    </div>
+    </div>   
     <div>
-    <!-- Footer -->
-    <!-- <div class="container-fluid text-center footer"> -->
-    <?php include_once "libraries/footer.php"; ?>
+        <!-- Footer -->
+        <!-- <div class="container-fluid text-center footer"> -->
+        <?php include_once "libraries/footer.php"; ?>
     </div>
 </body>
 <html>
