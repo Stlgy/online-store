@@ -19,7 +19,7 @@ include_once 'helpers/session_helper.php';
                 <br>
                 <h2>Log In</h2>
                 <br>
-                <?php //flash('login'); ?>
+                <?php flash('login'); ?>
 
                 <form class="form__login" action="controllers/users.php" method="post">
                     <input type="hidden" name="type" value="login">
