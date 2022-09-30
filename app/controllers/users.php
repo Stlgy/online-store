@@ -1,8 +1,14 @@
 <?php
 
-require_once '../models/user.php';
-require_once '../helpers/session_helper.php';
-require_once '../libraries/start.php';
+    if ($_SESSION["queroDados"] == 0) {
+        require_once '../models/user.php';
+        require_once '../helpers/session_helper.php';
+    }else{
+        require_once 'models/user.php';
+        require_once 'helpers/session_helper.php';
+    }
+
+//require_once '../libraries/start.php';
 
 //phpinfo();
 
@@ -15,74 +21,77 @@ class Users extends sys_utils {
         $this->userModel = new User;
         $this->resetModel = new User;
     }
-
+    ### REGISTER USER
     public function register() {
         #### PROCESS FORM####
+        if(isset($_POST['submit'])) {
+            ### SANITIZE POST DATA
+            $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
 
-        ### SANITIZE POST DATA
-        $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
+            ### INIT DATA
+            $data = [
+                'firstname' => trim($_POST['firstname']),
+                'lastname'  => trim($_POST['lastname']),
+                'username'  => trim($_POST['username']),
+                'email'     => trim($_POST['email']),
+                'pwd'       => trim($_POST['pwd']),
+                'pwdrepeat' => trim($_POST['pwdrepeat'])
+            ];
 
-        ### INIT DATA
-        $data = [
-            'firstname' => trim($_POST['firstname']),
-            'lastname'  => trim($_POST['lastname']),
-            'username'  => trim($_POST['username']),
-            'email'     => trim($_POST['email']),
-            'pwd'       => trim($_POST['pwd']),
-            'pwdrepeat' => trim($_POST['pwdrepeat'])
-        ];
+            $road = '../login.php';
+            $road2 = '../signup.php';
 
-        $road = '../login.php';
-        $road2 = '../signup.php';
+            ### VALIDATING INPUTS
+            if (empty($data['firstname']) || empty($data['lastname']) || empty($data['username']) ||
+                empty($data['email']) || empty($data['pwd']) || empty($data['pwdrepeat'])) {
+                flash("register", "Please fill out all fields"); //assign error
+                redirect($road2);
+            }
+            if (!preg_match("/^[a-zA-Z0-9]*$/", $data['firstname'])) {
+                flash("register", "Invalid firstname");
+                redirect($road2);
+            }
+            if (!preg_match("/^[a-zA-Z0-9]*$/", $data['lastname'])) {
+                flash("register", "Invalid lastname");
+                redirect($road2);
+            }
+            if (!preg_match("/^[a-zA-Z0-9]*$/", $data['username'])) {
+                flash("register", "Invalid username");
+                redirect($road2);
+            }
+            if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
+                flash("register", "Invalid email");
+                redirect($road2);
+            }
+            if (strlen($data['pwd']) < 6) {
+                flash("register", "Invalid password");
+                redirect($road2);
+            } else if ($data['pwd'] !== $data['pwdrepeat']) {
+                flash("register", "No matching passwords");
+                redirect($road2);
+            }
 
-        ### VALIDATING INPUTS
-        if (empty($data['firstname']) || empty($data['lastname']) || empty($data['username']) ||
-            empty($data['email']) || empty($data['pwd']) || empty($data['pwdrepeat'])) {
-            flash("register", "Please fill out all fields"); //assign error
-            redirect($road2);
-        }
-        if (!preg_match("/^[a-zA-Z0-9]*$/", $data['firstname'])) {
-            flash("register", "Invalid firstname");
-            redirect($road2);
-        }
-        if (!preg_match("/^[a-zA-Z0-9]*$/", $data['lastname'])) {
-            flash("register", "Invalid lastname");
-            redirect($road2);
-        }
-        if (!preg_match("/^[a-zA-Z0-9]*$/", $data['username'])) {
-            flash("register", "Invalid username");
-            redirect($road2);
-        }
-        if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
-            flash("register", "Invalid email");
-            redirect($road2);
-        }
-        if (strlen($data['pwd']) < 6) {
-            flash("register", "Invalid password");
-            redirect($road2);
-        } else if ($data['pwd'] !== $data['pwdrepeat']) {
-            flash("register", "No matching passwords");
-            redirect($road2);
-        }
-
-        ### CHECK IF EMAIL || USERNAME ALREADY EXISTS
-        if ($this->userModel->findUsername([$data['email'], $data['username']], "signup")) {
-            flash("register", "Username or email already exist");
-            redirect('../signup.php');
-        } else {
-            
-            ### ALL VALIDATIONS CHECKED HASH PWD
-            $data['pwd'] = password_hash($data['pwd'], PASSWORD_DEFAULT);
-            ### REGISTER
-            if ($this->userModel->register($data)) {
-                redirect($road); //send to login pag
-            } else { //stop script
-                die("Something went wrong");
+            ### CHECK IF EMAIL || USERNAME ALREADY EXISTS
+            if ($this->userModel->findUsername([$data['email'], $data['username']], "signup")) {
+                flash("register", "Username or email already exist");
+                redirect('../signup.php');
+            } else {
+                
+                ### ALL VALIDATIONS CHECKED HASH PWD
+                $data['pwd'] = password_hash($data['pwd'], PASSWORD_DEFAULT);
+                ### REGISTER
+                if ($this->userModel->register($data)) {
+                    flash("register", "User registered successfully", 'form-message-green');
+                    
+                    redirect($road); //send to login pag
+                    
+                } else { //stop script
+                    die("Something went wrong");
+                }
             }
         }
     }
-    public function login()
-    {
+    public function login() {
         //echo 1;
         $road = '../signup.php';
 
@@ -112,6 +121,7 @@ class Users extends sys_utils {
                 $this->createSession($loggedInUser);
             } else {
                 flash("login", "Incorrect password");
+                
                 redirect('../login.php');
             }
         } else {
@@ -119,6 +129,7 @@ class Users extends sys_utils {
         }
     }
     public function createSession($user) {
+
         $road = '../index.php';
         $_SESSION['id_u']       = $user["id_u"];
         $_SESSION['username']   = $user["username"];
@@ -131,9 +142,11 @@ class Users extends sys_utils {
         unset($_SESSION['id_u']);
         unset($_SESSION['username']);
         unset($_SESSION['email']);
+        unset($_SESSION['queroDados']);
         session_destroy();
         redirect($road);
     }
+    ### SEND EMAIL WITH TOKEN TO RESET PWD
     public function sendEmail() {
         $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
 
@@ -190,6 +203,7 @@ class Users extends sys_utils {
             redirect('../index.php');
         }
     }
+    ### RESET PWD PROCESS
     public function resetPassword() {
         ### SANITIZE DATA
         $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
@@ -239,14 +253,14 @@ class Users extends sys_utils {
            
             if (!$this->userModel->findEmail($tokenEmail)) {
             
-            flash("newReset", "There was an error!!!");
+            flash("newReset", "There was an error");
             redirect($url);
             } 
 
             $newPwdHash = password_hash($data['pwd'], PASSWORD_DEFAULT);
 
             if (!$this->userModel->updatePassword($newPwdHash, $tokenEmail)) {
-                flash("newReset", "There was an error up");
+                flash("newReset", "There was an error ");
                 redirect($url);
             } 
             if (!$this->resetModel->deleteToken($tokenEmail)) {
@@ -259,34 +273,139 @@ class Users extends sys_utils {
             redirect('../index.php');
         }
     }
-}
+
+    ### GET PROFILE
+    public function getProfile() {
+
+         $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
+         $road = '';
+
+        if(!isset($_SESSION['username']) || empty($_SESSION['username'])){
+        flash("editProfile","No permission to access this page");
+        redirect($road);
+        
+        }
+        $username = $_SESSION['username'];
+            
+        if($this->userModel->getProfile($username)){
+            return $this->userModel->getProfile($username);
+            //die();
+        }   
+
+    }
+    ### UPDATE PROFILE  
+    public function updateProfile() {
+       
+        $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);        
+        $road = '../login.php';
+        
+       
+        
+            if(isset($_POST['update-submit']) && $_POST['update-submit'] != "") {
+
+
+                ### GET DATA FROM PROFILE
+                
+                
+
+
+                ### INIT DATA
+                $data = [
+                'firstname' => trim($_POST['firstname']),
+                'lastname'  => trim($_POST['lastname']),
+                'username'  => trim($_POST['username']),
+                'email'     => trim($_POST['email']),
+                'pwd'       => trim($_POST['pwd']),
+                'pwdrepeat' => trim($_POST['pwdrepeat'])
+            ];
+                $road = '../update-profile';
+                $road2 = '../';
+
+                ### VALIDATING INPUTS
+                if (empty($data['firstname']) || empty($data['lastname']) || empty($data['username']) ||
+                    empty($data['email']) || empty($data['pwd']) || empty($data['pwdrepeat'])) {
+                    flash("register", "Please fill out all fields"); //assign error
+                    redirect($road);
+                }
+                if (!preg_match("/^[a-zA-Z0-9]*$/", $data['firstname'])) {
+                    flash("register", "Invalid firstname");
+                    redirect($road);
+                }
+                if (!preg_match("/^[a-zA-Z0-9]*$/", $data['lastname'])) {
+                    flash("register", "Invalid lastname");
+                    redirect($road);
+                }
+                if (!preg_match("/^[a-zA-Z0-9]*$/", $data['username'])) {
+                    flash("register", "Invalid username");
+                    redirect($road);
+                }
+                if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
+                    flash("register", "Invalid email");
+                    redirect($road);
+                }
+                if (strlen($data['pwd']) < 6) {
+                    flash("register", "Invalid password");
+                    redirect($road);
+                } else if ($data['pwd'] !== $data['pwdrepeat']) {
+                    flash("register", "No matching passwords");
+                    redirect($road);
+                }
+                ### CHECK IF EMAIL || USERNAME ALREADY EXISTS
+                if ($this->userModel->findUsername([$data['email'], $data['username']], "signup")) {
+                    flash("register", "Username or email already exist");
+                    redirect($road);
+                } else {
+                    
+                    ### ALL VALIDATIONS CHECKED HASH PWD
+                    $data['pwd'] = password_hash($data['pwd'], PASSWORD_DEFAULT);
+
+
+                    ### UPDATE USER
+
+                    
+
+
+                   
+                        
+                    } 
+                
+            }        
+        }  
+    }
+
 
 $init = new Users;
 
 ### ENSURING THE USER IS SENDING A POST REQUEST
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    switch ($_POST['type']) {
-        case 'register':
-            $init->register();
-            break;
-        case 'login':
-            $init->login();
-            break;
-        case 'send':
-            $init->sendEmail();
-            break;
-        case 'reset':
-            $init->resetPassword();
-            break;
-        default:
-            redirect("../index.php");
-    }
-} else {
-    switch ($_GET['q']) {
-        case 'logout':
-            $init->logout();
-            break;
-        default:
-            redirect("../index.php");
+if (!in_array(CP, ["update-profile"])) {
+    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+        switch ($_POST['type']) {
+            case 'register':
+                $init->register();
+                break;
+            case 'login':
+                $init->login();
+                break;
+            case 'send':
+                $init->sendEmail();
+                break;
+            case 'reset':
+                $init->resetPassword();
+                break;
+            case 'update':
+                $init->updateProfile();
+                break;
+            default:
+                redirect("../index.php");
+        }
+    } else {
+        switch ($_GET['q']) {
+            case 'logout':
+                $init->logout();
+                break;
+            default:
+                redirect("../index.php");
+        }
     }
 }
+
