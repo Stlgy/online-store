@@ -13,4 +13,7 @@
     define('BDU', 'root');
     define('BDP', '');
     define('IDIOMA', "pt");
+
+    define('CP',basename($_SERVER['PHP_SELF'],".php"));
+
 ?>
