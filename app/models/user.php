@@ -1,7 +1,12 @@
 <?php
-require_once '../libraries/start.php';
+//require_once '../libraries/start.php';
+if ($_SESSION["queroDados"] == 0) {
+    require_once '../libraries/start.php';
+    include('../libraries/class_utils.php');
+}else{
+    require_once 'libraries/start.php';
+}
 
-include('../libraries/class_utils.php');
 
 class User extends sys_utils{
 
@@ -53,7 +58,7 @@ class User extends sys_utils{
 
     ### LOGIN USER   
     public function login($name, $password) {
-
+        
         $result = false;
 
         if (!empty($row = $this->findUsername([$name], "login"))) {
@@ -116,6 +121,25 @@ class User extends sys_utils{
             return true;
         }else{
             return false;
-        }            
+        }
+    }
+    ### UPDATE PROFILE
+    public function getProfile($username) {
+
+        $result=[];
+        $res =SQL::run("SELECT * FROM " . BDPX . "_users WHERE username='$username'");
+        
+        if($res && $res->num_rows > 0){
+            $result = $res->fetch_assoc();
+            
+        }
+        
+        return $result; 
+    }
+    
+    ### UPDATE PROFILE
+    public function updateProfile(){
+        
     }
 }
+//echo SQL::$error;
