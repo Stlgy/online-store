@@ -16,4 +16,6 @@
 
     define('CP',basename($_SERVER['PHP_SELF'],".php"));
 
+    $_SESSION["getData"] = 0;
+
 ?>
