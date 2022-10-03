@@ -1,6 +1,6 @@
 <?php
 //require_once '../libraries/start.php';
-if ($_SESSION["queroDados"] == 0) {
+if ($_SESSION["getData"] == 0) {
     require_once '../libraries/start.php';
     include('../libraries/class_utils.php');
 }else{
@@ -123,11 +123,12 @@ class User extends sys_utils{
             return false;
         }
     }
-    ### UPDATE PROFILE
-    public function getProfile($username) {
+
+    ### GET DATA FROM PROFILE
+    public function getProfile($id) {
 
         $result=[];
-        $res =SQL::run("SELECT * FROM " . BDPX . "_users WHERE username='$username'");
+        $res =SQL::run("SELECT * FROM " . BDPX . "_users WHERE id_u='$id'");
         
         if($res && $res->num_rows > 0){
             $result = $res->fetch_assoc();
@@ -138,8 +139,22 @@ class User extends sys_utils{
     }
     
     ### UPDATE PROFILE
-    public function updateProfile(){
-        
+    public function updateProfile($data,$id){
+
+        $res=SQL::run("UPDATE " . BDPX . "_users SET 
+                        firstname='".$data['firstname']."',
+                        lastname='".$data['lastname']."',
+                        username='".$data['username']."',
+                        email='".$data['email']."',
+                        pwd='".$data['pwd']."'
+                        WHERE id_u='$id'"); 
+                                         
+        if ($res) {
+            return true;
+        } else {
+            return false;
+        }
+       
     }
 }
 //echo SQL::$error;
