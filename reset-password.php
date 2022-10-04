@@ -16,7 +16,7 @@ include_once 'helpers/session_helper.php';
 
     <div class="container-center">
         <div class="row main-content text-center">
-            <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12 resetpwd__form ">
+            <div class="col-12 resetpwd__form ">
                 <div class="container-fluid">
 
                     <h2>Reset your password</h2><br>
@@ -24,13 +24,13 @@ include_once 'helpers/session_helper.php';
 
                     <?php flash('reset'); ?>
 
-                    <form class="form__resetpwd1" action="controllers/users.php" method="post">
+                    <form class="form__resetpwd" action="controllers/users.php" method="post">
                         <input type="hidden" name="type" value="send">
                         <div class="row">
-                            <input type="text" name="email" class="form__input" placeholder="Enter your e-mail address">
+                            <input type="text" name="email" class="form__resetpwd" placeholder="Enter your e-mail address">
                         </div>
                         <div class="row-submit">
-                            <button type="submit" class="btn" id="btns" name="reset-request-submit" >RECEIVE EMAIL</button>
+                            <button type="submit" class="btn-mail"  name="reset-request-submit" >RECEIVE EMAIL</button>
                         </div>
                     </form>
                 </div>
