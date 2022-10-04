@@ -146,7 +146,8 @@ class User extends sys_utils{
                         lastname='".$data['lastname']."',
                         username='".$data['username']."',
                         email='".$data['email']."',
-                        pwd='".$data['pwd']."'
+                        pwd='".$data['pwd']."',
+                        '1'
                         WHERE id_u='$id'"); 
                                          
         if ($res) {
