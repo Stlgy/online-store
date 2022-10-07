@@ -1,0 +1,45 @@
+<?php
+include_once '../../libraries/start.php';
+include_once '../../helpers/session_helper.php';
+
+?>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <?php include_once "../layouts/head.php"; ?>
+    <link rel="stylesheet" href="template/css/style_log.css" type="text/css">
+</head>
+
+<body>
+    <?php include_once "../layouts/head.php"; ?>
+
+    <div class="container-center">
+        <div class="row main-content text-center">
+            <div class="col-12 resetpwd__form ">
+                <div class="container-fluid">
+
+                    <h2>Reset your password</h2><br>
+                    <p>An e-mail will be send to you with instructions on how to reset your password</p>
+
+                    <?php flash('reset'); ?>
+
+                    <form class="form__resetpwd" action="controllers/usersController.php" method="post">
+                        <input type="hidden" name="type" value="send">
+                        <div class="row">
+                            <input type="text" name="email" class="form__resetpwd" placeholder="Enter your e-mail address">
+                        </div>
+                        <div class="row-submit">
+                            <button type="submit" class="btn-mail"  name="reset-request-submit" >RECEIVE EMAIL</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Footer -->
+    <!-- <div class="container-fluid text-center footer"> -->
+    <?php include_once "../layouts/footer.php"; ?>
+    </div>
+</body>
+<html>
