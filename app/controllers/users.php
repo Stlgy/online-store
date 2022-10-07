@@ -1,16 +1,4 @@
 <?php
-    if ($_SESSION["getData"] == 0) {//user not logged
-        require_once '../libraries/start.php';
-        require_once '../models/user.php';
-        require_once '../helpers/session_helper.php';
-    }else{
-        require_once 'libraries/start.php';
-        require_once 'models/user.php';
-        require_once 'helpers/session_helper.php';
-    }
-
-//phpinfo();
-
 class Users extends sys_utils {
 
     private $userModel;
