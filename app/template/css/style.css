@@ -1,0 +1,121 @@
+* {
+    box-sizing: border-box;
+    margin:0;
+    padding:0;
+}
+body {
+    margin: 0;
+   /*  padding: 10px; */
+    background-color: #f1f1f1;
+    height: 100vh;
+    position:relative;
+    width:100%;
+
+   
+}
+header{
+    background-color:#162447;
+    font-family: sans-serif;
+    font-size: 1.7rem;
+    padding:20px 5%;
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    color:#E43F5A;
+    height:10%;
+
+}
+
+nav{
+
+}
+footer {
+    height: 100px;
+    background-color:#162447;
+    color: #edf7f6;
+    width: 100%;
+    margin:0;
+    text-align: left;
+    padding:10px;
+    font-size: 1.4rem;
+    
+}
+
+a{
+    color:"#000000";
+}
+/* .formsign{
+    margin: 10px auto 0 auto;
+    max-width: 800px;
+    width: 100%;
+    height:60%;
+    padding: 10px 30px;
+    border-radius:10px;
+    border:2px solid silver;
+     */margin:20px 10 18px 10;
+}
+form input {
+    width: 100%;
+    outline: none;
+    border: 1px solid black;
+    margin: 10px 0;
+    padding: 10px 10px 10px 5px;
+}
+.form button {
+    margin-top: 10px;
+    padding: 10px 20px;
+}
+
+
+/* 
+.form-message-red {
+  background-color:rgb(240,128,128);
+  border: 10px solid rgb(178,34,34);
+  margin-bottom:10px;
+}
+
+.form-message-green {
+  background-color: lightgreen;
+  border: 2px solid green;
+} */
+
+.form-sub-msg {
+  margin: 20px auto 0 auto;
+  width: 90%;
+  max-width: 560px;
+  color: #00334d;
+}
+a{
+    color:"#000000";
+}
+.menu-main{
+    list-style:none;
+    height:70px;
+    display:flex;
+}
+#Welcome{
+    font-size:1.2rem;
+    margin-top:5px;
+}
+.menu-main li{
+    display:inline-block;
+    padding:0px 20px;
+    text-align:center;
+    
+}
+.menu-main li a{
+    transition:all 0.3s ease 0s;
+    color:#edf7f6;
+}
+.menu-main li a:hover{
+    color:#0087a8;
+}
+.header, .form-msg, .psign, .headerS{
+    text-align:center;
+    padding:10px 20px;
+}
+.logs{
+    margin-left:auto;
+}
+
+
